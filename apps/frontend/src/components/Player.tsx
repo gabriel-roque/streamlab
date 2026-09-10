@@ -22,8 +22,8 @@ export function Player({ source, protocol, title, preview, audioTracks, subtitle
 
   useEffect(() => {
     const video = videoRef.current;
-      if (!video || !source) return;
-      video.muted = true;
+    if (!video || !source) return;
+    video.muted = true;
     setError(false);
     setPlaying(false);
     setProgress(0);
