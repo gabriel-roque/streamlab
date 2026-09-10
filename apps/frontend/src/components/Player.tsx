@@ -12,7 +12,7 @@ export function Player({ source, protocol, title, preview, audioTracks, subtitle
   const startedAt = useRef<number>(0);
   const hlsRef = useRef<Hls | null>(null);
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(true);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [quality, setQuality] = useState("auto");
@@ -22,7 +22,8 @@ export function Player({ source, protocol, title, preview, audioTracks, subtitle
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !source) return;
+      if (!video || !source) return;
+      video.muted = true;
     setError(false);
     setPlaying(false);
     setProgress(0);
