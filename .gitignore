@@ -1,0 +1,11 @@
+.streamlab-data/
+.env
+.env.*
+!.env.example
+samples/raw/
+samples/generated/
+apps/frontend/node_modules/
+apps/frontend/dist/
+coverage/
+*.log
+.DS_Store
