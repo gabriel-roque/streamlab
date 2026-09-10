@@ -1,0 +1,12 @@
+raw/
+generated/
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.webm
+*.ts
+*.m3u8
+*.mpd
+*.zip
+*.part
