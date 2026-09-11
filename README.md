@@ -49,6 +49,8 @@ flowchart LR
   F --> G[Eventos QoE]
 ```
 
+### Key Words
+
 | Conceito | Explicação curta |
 | --- | --- |
 | Codec | Como vídeo ou áudio é comprimido, por exemplo H.264 e AAC. |
