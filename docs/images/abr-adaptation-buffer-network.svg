@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
-  <title id="title">ABR alternando entre 1080p, 720p e 480p</title>
-  <desc id="desc">Linha do tempo mostra o ABR mantendo 1080p, descendo para 720p e 480p durante uma queda de rede e subindo gradualmente quando o buffer se recupera.</desc>
+  <title id="title">ABR switching between 1080p, 720p, and 480p</title>
+  <desc id="desc">Timeline showing ABR staying at 1080p, stepping down to 720p and 480p during a network drop, then gradually recovering as the buffer returns.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#07090f"/>
@@ -26,11 +26,11 @@
   <rect width="1280" height="760" fill="url(#bg)"/>
   <path d="M 40 116 H 1240" stroke="#242c39"/>
   <text x="40" y="48" class="eyebrow">STREAMLAB / ABR</text>
-  <text x="40" y="86" class="title">Qualidade acompanha a rede</text>
-  <text x="925" y="79" class="subtitle">ABR protege o buffer antes do rebuffer</text>
+  <text x="40" y="86" class="title">Quality follows the network</text>
+  <text x="925" y="79" class="subtitle">ABR protects the buffer before rebuffering</text>
 
   <rect x="40" y="150" width="1200" height="354" rx="6" class="panel"/>
-  <text x="66" y="186" class="eyebrow">NÍVEL ESCOLHIDO PELO PLAYER</text>
+  <text x="66" y="186" class="eyebrow">PLAYER-SELECTED LEVEL</text>
 
   <g stroke="#242c39" stroke-width="1">
     <path d="M 172 230 H 1150"/>
@@ -46,7 +46,7 @@
   <text x="66" y="235" class="level">1080p</text>
   <text x="66" y="320" class="level">720p</text>
   <text x="66" y="405" class="level">480p</text>
-  <text x="66" y="480" class="axis">tempo</text>
+  <text x="66" y="480" class="axis">time</text>
   <text x="172" y="496" class="axis">0s</text>
   <text x="404" y="496" class="axis">12s</text>
   <text x="648" y="496" class="axis">24s</text>
@@ -71,7 +71,7 @@
 
   <g transform="translate(40 536)">
     <rect width="1200" height="174" rx="6" class="panel"/>
-    <text x="26" y="34" class="eyebrow">SINAIS OBSERVADOS</text>
+    <text x="26" y="34" class="eyebrow">OBSERVED SIGNALS</text>
 
     <text x="26" y="72" class="copy">throughput</text>
     <rect x="160" y="56" width="600" height="22" rx="3" fill="#121823" stroke="#384557"/>
@@ -89,16 +89,16 @@
 
     <rect x="930" y="28" width="238" height="119" rx="4" fill="#121823" stroke="#384557"/>
     <text x="952" y="55" class="eyebrow">REGRA CONSERVADORA</text>
-    <text x="952" y="82" class="copy">queda de rede + buffer curto</text>
+    <text x="952" y="82" class="copy">network drop + short buffer</text>
     <path d="M 952 98 H 1028" stroke="#b9f227" stroke-width="2" marker-end="url(#arrow-cyan)"/>
-    <text x="1042" y="103" class="copy">reduz antes de travar</text>
-    <text x="952" y="130" class="small">sobe gradualmente na recuperação</text>
+    <text x="1042" y="103" class="copy">steps down before stalling</text>
+    <text x="952" y="130" class="small">rises gradually during recovery</text>
   </g>
 
   <circle cx="68" cy="734" r="5" fill="#b9f227"/>
-  <text x="84" y="739" class="small">ABR decide por segmento, não por um arquivo inteiro</text>
+  <text x="84" y="739" class="small">ABR decides per segment, not per entire file</text>
   <circle cx="470" cy="734" r="5" fill="#ff6e75"/>
-  <text x="486" y="739" class="small">vermelho = pressão de rede</text>
+  <text x="486" y="739" class="small">red = network pressure</text>
   <circle cx="740" cy="734" r="5" fill="#5ed9d0"/>
-  <text x="756" y="739" class="small">ciano = sinal estável</text>
+  <text x="756" y="739" class="small">cyan = stable signal</text>
 </svg>
