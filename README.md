@@ -133,33 +133,6 @@ O projeto serve como evidência prática de conhecimento em:
 - Telemetria de playback e métricas de QoE.
 - Object storage, cache, CDN e escalabilidade como próximos passos.
 
-## Comandos Úteis
-
-```bash
-# Ver serviços
-docker compose ps
-
-# Parar containers, mantendo volumes
-docker compose down
-
-# Validar backend
-go test ./...
-go test -race ./...
-go vet ./...
-
-# Validar frontend
-npm run typecheck --prefix apps/frontend
-npm run test --prefix apps/frontend
-npm run build --prefix apps/frontend
-
-# Gerar e validar mídia fora da API
-scripts/download-bbb.sh
-scripts/ffprobe-media.sh --input samples/raw/big-buck-bunny-1080p-normal.mp4
-scripts/generate-ladder.sh
-scripts/generate-hls.sh
-scripts/generate-dash.sh
-```
-
 ## Documentação
 
 - [Contrato HTTP](./docs/api-contract.md)
