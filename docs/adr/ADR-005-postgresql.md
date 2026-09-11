@@ -10,8 +10,9 @@ precisam de consulta e consistência.
 
 ## Decisão
 
-Usar PostgreSQL como catálogo e store transacional de estado. Bytes não são
-armazenados nele.
+O Compose provisiona PostgreSQL para o estágio de catálogo, mas a implementação
+atual mantém vídeos e jobs no `LocalStore`/`MemoryQueue` em memória. A API não
+abre conexão PostgreSQL e não persiste bytes no banco.
 
 ## Alternativas
 
@@ -21,5 +22,6 @@ armazenados nele.
 
 ## Consequências
 
-Transições devem ser atômicas e indexadas por `video_id`, `status` e `created_at`.
-Métricas de fila não devem depender de scans frequentes do catálogo.
+Ao migrar para PostgreSQL, transições deverão ser atômicas e indexadas por
+`video_id`, `status` e `created_at`. Hoje essas garantias não existem após um
+restart e métricas são contadores da instância em memória.

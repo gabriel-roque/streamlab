@@ -9,6 +9,47 @@ embutido na API e um player com `hls.js`. A aplicação foi desenhada para evolu
 de um ambiente local simples para uma arquitetura com storage de objetos,
 mensageria e processamento distribuído.
 
+## Quick Start: clonar, subir e testar
+
+O caminho recomendado para uma demonstração limpa é um único script. Ele valida
+as dependências, escolhe portas livres, sobe todos os serviços, baixa o Big Buck
+Bunny oficial, envia o arquivo pela API, espera o estado `READY` e imprime os
+links para abrir a biblioteca e o asset processado:
+
+```bash
+git clone https://github.com/gabriel-roque/streamlab.git
+cd streamlab
+./scripts/quick-start.sh
+```
+
+Pré-requisitos: Docker com Compose v2, `curl`, `jq` e `unzip`. O primeiro ciclo
+pode levar alguns minutos porque baixa a mídia de demonstração e constrói as
+imagens. O container da API já inclui FFmpeg/FFprobe, então o upload percorre o
+pipeline real de probe, transcode e empacotamento HLS/DASH.
+
+Ao final, o terminal mostra algo semelhante a:
+
+```text
+StreamLab is ready
+  Library:       http://localhost:3000/
+  Asset screen:  http://localhost:3000/ (select Big Buck Bunny quick-start)
+  Status API:    http://localhost:3000/api/videos/vid-.../status
+  Playback API:  http://localhost:3000/api/videos/vid-.../playback
+  HLS playback:  http://localhost:3000/api/videos/vid-.../playback/hls
+```
+
+Abra `Asset screen`, selecione o card com o título impresso pelo script e use o
+player. Se uma porta estiver ocupada, o script escolhe outra e imprime o novo
+endereço. Para reaproveitar um arquivo já baixado, use:
+
+```bash
+./scripts/quick-start.sh --skip-download
+```
+
+Nesse modo, o arquivo esperado é
+`samples/raw/big-buck-bunny-1080p-normal.mp4`; também é possível definir outro
+arquivo com `VIDEO_FILE=/caminho/video.mp4`.
+
 ## Estado atual
 
 O que funciona hoje:
@@ -19,8 +60,8 @@ O que funciona hoje:
 - API Go para catálogo, upload multipart, status, playback, sessões e eventos de QoE.
 - `Range Requests` para mídia local.
 - Fila em memória e processamento assíncrono no worker embutido da API.
-- `ffprobe` e `ffmpeg` usados quando estão instalados; sem eles, o pipeline usa
-  artefatos fixture para manter o fluxo demonstrável.
+- `ffprobe` e `ffmpeg` usados no container da API; a execução local sem essas
+  ferramentas usa artefatos fixture para manter o fluxo demonstrável.
 - Scripts independentes para baixar o fixture, inspecionar mídia, gerar ladder,
   HLS, DASH e validar os pacotes.
 - Métricas Prometheus simples em `/metrics` e dashboard provisionado no Compose.
@@ -89,7 +130,8 @@ consultado em `/videos/{id}/status` até chegar a `READY`.
 
 ## Quickstart Docker
 
-O Compose define a topologia de evolução completa:
+O `scripts/quick-start.sh` já executa o Compose. Para controlar cada etapa
+manualmente, a topologia completa também pode ser iniciada assim:
 
 ```bash
 docker compose config
@@ -131,6 +173,10 @@ Para encerrar e remover os containers, mantendo os volumes:
 docker compose down
 ```
 
+`docker compose down` remove os containers, mas mantém os volumes. O catálogo,
+jobs e telemetria continuam efêmeros porque o MVP ainda mantém esses dados em
+memória; os vídeos e artefatos locais permanecem no volume `media_data`.
+
 ## Vídeo público de demonstração
 
 O fixture recomendado é **Big Buck Bunny**, da Blender Foundation.
@@ -154,6 +200,59 @@ redistribuir mídia, mantenha a atribuição à Blender Foundation, respeite os
 termos da fonte e confirme a licença vigente no endereço oficial. O download
 serve para testes locais; não é uma licença para incluir o vídeo, thumbnails ou
 artefatos gerados neste projeto.
+
+## Guia de exploração
+
+Siga esta ordem para demonstrar o caminho completo de mídia:
+
+1. **Biblioteca.** Abra o endereço `Library` impresso pelo Quick Start. Confirme
+   `API connected`, o card do upload e o asset `ABR Ladder / live probe`. O
+   primeiro representa um arquivo que passou pelo pipeline local; o segundo é um
+   manifesto HLS público com múltiplas rendições.
+2. **Pipeline.** Consulte o endpoint `status` do vídeo enviado. Observe a
+   transição `PROCESSING` para `READY` e os jobs associados. O tempo depende de
+   CPU, duração, resolução e preset do FFmpeg.
+3. **Player MP4.** Abra o asset enviado. Use play, pause e seek; depois compare o
+   comportamento progressivo com um request `Range`:
+
+   ```bash
+   BASE=http://localhost:PORTA/api
+   VIDEO_ID=vid-cole-o-id-impresso-pelo-script
+   curl -i -H 'Range: bytes=0-1023' \
+     "$BASE/videos/$VIDEO_ID/stream" -o /tmp/streamlab-range.bin
+   ```
+
+   Procure `206 Partial Content`, `Accept-Ranges` e `Content-Range`.
+4. **Player HLS e ABR.** Volte à biblioteca e abra `ABR Ladder / live probe`.
+   Confirme `HLS / ADAPTIVE`, deixe `quality` em `Auto`, observe o buffer e
+   troque manualmente entre `1080p`, `720p` e `480p`. Em seguida, abra as
+   ferramentas de rede do navegador e limite a banda para observar decisões ABR.
+5. **Manifesto.** Compare o manifesto e o arquivo progressivo:
+
+   ```bash
+   curl -fsS "$BASE/videos/$VIDEO_ID/playback" | jq
+   curl -fsS "$BASE/videos/$VIDEO_ID/playback/hls"
+   curl -fsS "$BASE/videos/$VIDEO_ID/playback/dash"
+   ```
+
+   O HLS usa playlist e segmentos; o DASH usa um MPD. O player MVP integra HLS
+   com `hls.js`; DASH fica disponível para inspeção via API.
+6. **QoE.** Reproduza, pause, faça seek e mude a qualidade. O painel de
+   observabilidade mostra startup, buffer, resolução e switches. Verifique os
+   eventos e métricas:
+
+   ```bash
+   curl -fsS "$BASE/metrics"
+   ```
+
+7. **Experimentos.** Rode `scripts/generate-ladder.sh`,
+   `scripts/generate-hls.sh` e `scripts/generate-dash.sh`. Use
+   `scripts/validate-media.sh` e `scripts/ffprobe-media.sh` para relacionar
+   container, codec, resolução, bitrate, GOP, keyframes e duração aos artefatos.
+
+Para uma demonstração visual, capture a biblioteca após o Quick Start e a tela
+de detalhe enquanto `HLS / ADAPTIVE` e `Playback observability` estão visíveis.
+Os diagramas Mermaid abaixo explicam o mesmo fluxo em nível de arquitetura.
 
 ## API resumida
 
@@ -206,11 +305,11 @@ implementada usa `/health` e o upload multipart direto em `POST /videos`.
 ## Pipeline de mídia
 
 O upload grava o original no adapter local, cria um job na fila em memória e
-devolve a resposta sem esperar o transcoding. O worker executa `ffprobe` quando
-possível, tenta gerar HLS com FFmpeg e publica manifesto HLS/DASH no disco. Sem
-uma mídia válida ou sem as ferramentas instaladas, o caminho fixture cria
-artefatos mínimos para que o estado possa chegar a `READY`, mas isso não
-representa uma ladder de produção.
+devolve a resposta sem esperar o transcoding. No Compose, a imagem da API contém
+`ffprobe` e `ffmpeg`: o worker inspeciona a mídia, gera HLS real e publica um
+manifesto DASH didático no disco. Sem uma mídia válida ou sem as ferramentas
+instaladas, o caminho fixture cria artefatos didáticos para que o estado possa
+chegar a `READY`, mas isso não representa uma ladder de produção.
 
 ### Arquitetura do MVP
 

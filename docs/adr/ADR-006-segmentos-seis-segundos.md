@@ -10,8 +10,11 @@ overhead de manifest e pressão no CDN.
 
 ## Decisão
 
-Usar seis segundos como baseline VOD e variar para 2, 4, 10 e 12 segundos no
-experimento de HLS. Todas as rendições devem ter GOP e pontos de corte alinhados.
+Usar seis segundos como baseline VOD: é o default de `generate-hls.sh`,
+`generate-dash.sh` e do comando FFmpeg do processador local. Variar para 2, 4,
+10 e 12 segundos no experimento de HLS. O fixture HLS sem FFmpeg tem exatamente
+um segmento de seis segundos; nos pacotes reais, `hls_time` é um alvo e a
+duração efetiva deve ser lida do manifest.
 
 ## Alternativas
 

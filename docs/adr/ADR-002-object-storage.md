@@ -10,17 +10,20 @@ dos metadados transacionais.
 
 ## Decisão
 
-Usar MinIO localmente, com uma interface compatível com S3, para originais,
-variantes e manifests. A API entrega upload direto por URL pré-assinada quando
-o fluxo estiver pronto.
+Manter filesystem local como adapter atual: `media/` guarda originais e
+`artifacts/{video_id}/` guarda manifests/segmentos. O Compose também sobe MinIO
+com interface compatível com S3 para o próximo estágio, mas a API atual não se
+conecta a ele nem entrega upload por URL pré-assinada.
 
 ## Alternativas
 
-- Filesystem local: útil no primeiro teste, mas não representa object storage.
+- MinIO/S3 desde o início: representa object storage, mas ainda não é usado pelo
+  código executável.
 - Guardar bytes no PostgreSQL: acopla escala de banco ao throughput de mídia.
 - S3 desde o início: realista, mas menos reproduzível offline.
 
 ## Consequências
 
-É necessário tratar consistência/publicação de prefixos, retenção e URLs
-assinadas. A origem deve continuar acessível para validar um cache miss.
+O adapter local não oferece retenção, versionamento, URLs assinadas ou
+publicação atômica de prefixos. Essas são preocupações do estágio MinIO/S3; por
+enquanto, reiniciar a API perde metadados, mas os bytes do diretório persistem.

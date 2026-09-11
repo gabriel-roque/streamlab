@@ -9,20 +9,22 @@ indisponibilidade deliberada com incidente não observado.
 
 | Falha | Sinal esperado | Recuperação |
 |---|---|---|
-| matar transcoder | lease expira, job retorna | retry ou DLQ |
-| parar object storage | uploads/packaging falham | backoff, sem publicar parcial |
+| matar worker/API | fila em memória pode perder trabalho | restart e novo upload |
+| parar storage local | uploads/packaging falham | erro HTTP, sem garantia de retry |
 | parar API | novos pedidos falham | player usa cache já publicado |
-| derrubar broker | fila fica indisponível | alarme, sem perda após retorno |
+| parar Redis/PostgreSQL/MinIO | sem efeito no código atual | validar que são dependências futuras |
 | aumentar latência | p95 e rebuffer sobem | timeout e circuit breaker |
 | limitar banda | ABR reduz variante | sem loop de switches |
-| corromper vídeo | probe/encode falha | poison job na DLQ |
+| corromper vídeo | FFmpeg pode falhar; fixture pode mascarar | observar job, não assumir DLQ |
 
 ## Procedimento
 
 Defina baseline, duração, blast radius e rollback. Execute uma falha por vez;
-correlacione logs por `X-Request-ID`/job ID e capture queue depth, error rate,
-retries, DLQ, startup, rebuffer e cache. Nunca injete caos em um ambiente com
-dados de usuário.
+correlacione por job ID (a API atual não gera `X-Request-ID`) e capture status,
+error rate, retries, DLQ, startup, rebuffer e cache. Em Compose, os nomes dos
+serviços são `api`, `nginx`, `postgres`, `redis`, `minio`, `prometheus` e
+`grafana`; lembre que os quatro últimos não são dependências lidas pela API
+atual. Nunca injete caos em um ambiente com dados de usuário.
 
 ## Critério
 
