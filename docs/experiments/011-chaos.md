@@ -1,33 +1,32 @@
 # 011 — Chaos testing
 
-## Objetivo
+## Objective
 
-Demonstrar comportamento previsível quando uma dependência falha, sem confundir
-indisponibilidade deliberada com incidente não observado.
+Demonstrate predictable behavior when a dependency fails without confusing
+deliberate unavailability with an unobserved incident.
 
 ## Matriz
 
-| Falha | Sinal esperado | Recuperação |
+| Failure | Expected signal | Recovery |
 |---|---|---|
-| matar worker/API | fila em memória pode perder trabalho | restart e novo upload |
-| parar storage local | uploads/packaging falham | erro HTTP, sem garantia de retry |
-| parar API | novos pedidos falham | player usa cache já publicado |
-| parar Redis/PostgreSQL/MinIO | sem efeito no código atual | validar que são dependências futuras |
-| aumentar latência | p95 e rebuffer sobem | timeout e circuit breaker |
-| limitar banda | ABR reduz variante | sem loop de switches |
-| corromper vídeo | FFmpeg pode falhar; fixture pode mascarar | observar job, não assumir DLQ |
+| kill worker/API | in-memory queue may lose work | restart and new upload |
+| stop local storage | uploads/packaging fail | HTTP error, no retry guarantee |
+| stop API | new requests fail | player uses already-published cache |
+| stop Redis/PostgreSQL/MinIO | no effect on current code | verify that they are future dependencies |
+| increase latency | p95 and rebuffering increase | timeout and circuit breaker |
+| limit bandwidth | ABR reduces variant | no switch loop |
+| corrupt video | FFmpeg may fail; fixture may mask it | observe the job, do not assume DLQ |
 
-## Procedimento
+## Procedure
 
-Defina baseline, duração, blast radius e rollback. Execute uma falha por vez;
-correlacione por job ID (a API atual não gera `X-Request-ID`) e capture status,
-error rate, retries, DLQ, startup, rebuffer e cache. Em Compose, os nomes dos
-serviços são `api`, `nginx`, `postgres`, `redis`, `minio`, `prometheus` e
-`grafana`; lembre que os quatro últimos não são dependências lidas pela API
-atual. Nunca injete caos em um ambiente com dados de usuário.
+Define the baseline, duration, blast radius, and rollback. Execute one failure at
+a time; correlate by job ID (the current API does not generate `X-Request-ID`)
+and capture status, error rate, retries, DLQ, startup, rebuffering, and cache. In
+Compose, the service names are `api`, `nginx`, `postgres`, `redis`, `minio`,
+`prometheus`, and `grafana`; remember that the last four are not dependencies
+read by the current API. Never inject chaos into an environment with user data.
 
-## Critério
+## Criteria
 
-Toda falha tem detector, limite de impacto, comportamento documentado e
-recuperação verificável. Um sistema que apenas retorna 500 rapidamente não é
-considerado resiliente.
+Every failure has a detector, impact limit, documented behavior, and verifiable
+recovery. A system that merely returns 500 quickly is not considered resilient.

@@ -1,52 +1,52 @@
-# Contrato HTTP do StreamLab
+# StreamLab HTTP Contract
 
-Contrato executável da API atual. IDs gerados têm prefixos (`vid-`, `job-`,
-`session-` e `event-`) seguidos por 16 caracteres hexadecimais; os IDs dos
-fixtures públicos são `big-buck-bunny` e `abr-lab`. Timestamps são RFC 3339 em
-UTC. Metadados, fila, telemetria e catálogo vivem em memória; mídia e artefatos
-locais vivem no diretório configurado de storage.
+Executable contract for the current API. Generated IDs have prefixes (`vid-`,
+`job-`, `session-`, and `event-`) followed by 16 hexadecimal characters; public
+fixture IDs are `big-buck-bunny` and `abr-lab`. Timestamps are RFC 3339 in UTC.
+Metadata, queue, telemetry, and catalog live in memory; local media and artifacts
+live in the configured storage directory.
 
-## Bases e regras comuns
+## Bases and Common Rules
 
-Ao subir com Compose, use `http://localhost:3000/api`: o NGINX remove `/api/`
-antes de encaminhar a requisição para a API. O NGINX expõe `/healthz` sem o
-prefixo. Ao executar `go run ./apps/api` diretamente, a API escuta
-`http://localhost:8080` e as rotas não têm `/api`.
+When starting with Compose, use `http://localhost:3000/api`: NGINX removes `/api/`
+before forwarding the request to the API. NGINX exposes `/healthz` without the
+prefix. When running `go run ./apps/api` directly, the API listens on
+`http://localhost:8080` and routes do not have `/api`.
 
 - JSON usa `Content-Type: application/json`; upload usa `multipart/form-data`.
-- Erros usam `{ "error": "mensagem" }`.
-- A API não implementa autenticação, URLs assinadas, `X-Request-ID`, paginação,
-  `ETag` ou `If-Range`.
-- O limite do corpo de upload é 2 GiB.
-- `POST` de upload retorna `202 Accepted`; o worker atualiza o status depois.
+- Errors use `{ "error": "message" }`.
+- The API does not implement authentication, signed URLs, `X-Request-ID`,
+  pagination, `ETag`, or `If-Range`.
+- The upload body limit is 2 GiB.
+- Upload `POST` returns `202 Accepted`; the worker updates the status afterward.
 
 ## Endpoints
 
-| Método | Rota | Sucesso | Uso |
+| Method | Route | Success | Use |
 |---|---|---:|---|
-| `GET` | `/health` ou `/healthz` | `200` | Saúde da API |
-| `GET` | `/metrics` | `200` | Métricas Prometheus em texto |
-| `GET` | `/videos` | `200` | Lista `{ "videos": [...] }` |
-| `POST` | `/videos` | `201` ou `202` | Cria metadados JSON ou recebe upload multipart |
-| `GET` | `/videos/{id}` | `200` | Metadados do vídeo |
-| `POST` | `/videos/{id}/upload` | `202` | Upload multipart para vídeo criado |
-| `GET` | `/videos/{id}/status` | `200` | Status e jobs da fila |
-| `GET`/`HEAD` | `/videos/{id}/stream` | `200`/`206` | MP4 local com suporte a Range |
-| `GET` | `/videos/{id}/playback` | `200` | Seleção de playback |
-| `GET` | `/videos/{id}/playback/hls` | `200` | Manifest HLS local |
-| `GET` | `/videos/{id}/playback/dash` | `200` | Manifest DASH local |
-| `GET` | `/videos/{id}/playback/{hls\|dash}/{name}` | `200` | Segmento ou artefato local |
-| `POST` | `/playback/sessions` ou `/sessions` | `201` | Cria sessão de telemetria |
-| `POST` | `/playback/events` ou `/telemetry/playback` | `202` | Registra evento de playback |
+| `GET` | `/health` or `/healthz` | `200` | API health |
+| `GET` | `/metrics` | `200` | Prometheus metrics in text format |
+| `GET` | `/videos` | `200` | List `{ "videos": [...] }` |
+| `POST` | `/videos` | `201` or `202` | Create JSON metadata or receive multipart upload |
+| `GET` | `/videos/{id}` | `200` | Video metadata |
+| `POST` | `/videos/{id}/upload` | `202` | Multipart upload for a created video |
+| `GET` | `/videos/{id}/status` | `200` | Status and queue jobs |
+| `GET`/`HEAD` | `/videos/{id}/stream` | `200`/`206` | Local MP4 with Range support |
+| `GET` | `/videos/{id}/playback` | `200` | Playback selection |
+| `GET` | `/videos/{id}/playback/hls` | `200` | Local HLS manifest |
+| `GET` | `/videos/{id}/playback/dash` | `200` | Local DASH manifest |
+| `GET` | `/videos/{id}/playback/{hls\|dash}/{name}` | `200` | Local segment or artifact |
+| `POST` | `/playback/sessions` or `/sessions` | `201` | Create telemetry session |
+| `POST` | `/playback/events` or `/telemetry/playback` | `202` | Record playback event |
 
-Não existem as rotas `DELETE /videos/{id}` ou `GET /readyz` na implementação
-atual.
+The routes `DELETE /videos/{id}` and `GET /readyz` do not exist in the current
+implementation.
 
-## Criar e enviar vídeo
+## Create and Upload a Video
 
-Há dois fluxos. Criar metadados não grava bytes nem enfileira trabalho; o upload
-posterior faz isso. Para o fluxo direto, envie `file` (o alias `video` também é
-aceito):
+There are two flows. Creating metadata does not write bytes or enqueue work; a
+subsequent upload does. For the direct flow, send `file` (the `video` alias is
+also accepted):
 
 ```bash
 BASE=http://localhost:3000/api
@@ -58,8 +58,9 @@ curl -X POST "$BASE/videos" \
   -F 'file=@samples/raw/big-buck-bunny-1080p-normal.mp4;type=video/mp4'
 ```
 
-Resposta direta: `202` e um objeto `Video` com `status: "PROCESSING"`, além do
-header `Location: /videos/{id}`. O mesmo fluxo via endpoint separado é:
+Direct response: `202` and a `Video` object with `status: "PROCESSING"`, along
+with the `Location: /videos/{id}` header. The same flow through a separate
+endpoint is:
 
 ```bash
 created=$(curl -sS -X POST "$BASE/videos" \
@@ -70,9 +71,9 @@ curl -X POST "$BASE/videos/$id/upload" \
   -F 'file=@samples/raw/big-buck-bunny-1080p-normal.mp4;type=video/mp4'
 ```
 
-O JSON de criação também aceita `filename` e `contentType` no nível superior,
-ou `content_type` dentro/fora de `source`. A resposta `201` desse primeiro
-passo é semelhante a:
+The creation JSON also accepts `filename` and `contentType` at the top level, or
+`content_type` inside or outside `source`. The `201` response from this first
+step resembles:
 
 ```json
 {
@@ -91,7 +92,7 @@ passo é semelhante a:
 
 ## Status
 
-`GET /videos/{id}/status` retorna o vídeo e os jobs encontrados na fila:
+`GET /videos/{id}/status` returns the video and the jobs found in the queue:
 
 ```json
 {
@@ -107,14 +108,14 @@ passo é semelhante a:
 }
 ```
 
-Vídeos usam `PROCESSING`, `READY` ou `FAILED` (o processador atual publica
-`READY` após gerar os artefatos; uma falha de job pode deixar o vídeo em
-`PROCESSING` enquanto o job vai para `DLQ`). Jobs usam `QUEUED`, `RUNNING`,
-`RETRYING`, `SUCCEEDED` ou `DLQ`. Não há campo de progresso percentual.
+Videos use `PROCESSING`, `READY`, or `FAILED` (the current processor publishes
+`READY` after generating artifacts; a job failure can leave the video in
+`PROCESSING` while the job moves to `DLQ`). Jobs use `QUEUED`, `RUNNING`,
+`RETRYING`, `SUCCEEDED`, or `DLQ`. There is no percentage progress field.
 
-## Range e playback
+## Range and Playback
 
-Após um upload local ficar `READY`, o MP4 original está em
+After a local upload becomes `READY`, the original MP4 is available at
 `/videos/{id}/stream`:
 
 ```bash
@@ -122,13 +123,14 @@ curl -i -H 'Range: bytes=0-1023' "$BASE/videos/$id/stream" -o /tmp/range.bin
 curl -I -H 'Range: bytes=1024-' "$BASE/videos/$id/stream"
 ```
 
-Sem `Range`, a resposta é `200`; com Range válido, `206 Partial Content`,
-`Accept-Ranges: bytes`, `Content-Range` e `Content-Length`. O servidor aceita
-intervalos únicos `bytes=start-end`, `bytes=start-` e `bytes=-suffix`; intervalo
-inválido retorna `416` com `Content-Range: bytes */tamanho`. `HEAD` mantém os
-headers e não envia o corpo. Isso é transporte de um arquivo, não ABR.
+Without `Range`, the response is `200`; with a valid Range, it is `206 Partial
+Content`, `Accept-Ranges: bytes`, `Content-Range`, and `Content-Length`. The
+server accepts single ranges `bytes=start-end`, `bytes=start-`, and
+`bytes=-suffix`; an invalid range returns `416` with `Content-Range: bytes
+*/tamanho`. `HEAD` retains the headers and sends no body. This is file transport,
+not ABR.
 
-Vídeos locais `READY` retornam playback semelhante a:
+Local `READY` videos return playback similar to:
 
 ```json
 {
@@ -146,20 +148,20 @@ Vídeos locais `READY` retornam playback semelhante a:
 }
 ```
 
-O processador local publica os dois manifests. Sem `ffmpeg`, ele usa um fixture
-HLS de uma playlist de seis segundos e um manifest DASH didático; com `ffmpeg`
-disponível, gera HLS real a partir do arquivo. Os scripts independentes em
-`scripts/` geram pacotes HLS master com variantes e um pacote DASH completo para
-estudo.
+The local processor publishes both manifests. Without `ffmpeg`, it uses an HLS
+fixture with a six-second playlist and an educational DASH manifest; with
+`ffmpeg` available, it generates real HLS from the file. The independent scripts
+in `scripts/` generate HLS master packages with variants and a complete DASH
+package for study.
 
-Só vídeos `READY` servem manifestos e artefatos. Para os fixtures sem bytes
-locais, `/videos/big-buck-bunny/playback` aponta para o MP4 público do Google e
-`/videos/abr-lab/playback` aponta para o HLS público do Mux; essas URLs não são
-assinadas pela API.
+Only `READY` videos serve manifests and artifacts. For fixtures without local
+bytes, `/videos/big-buck-bunny/playback` points to Google's public MP4 and
+`/videos/abr-lab/playback` points to Mux's public HLS; these URLs are not signed
+by the API.
 
-## Telemetria
+## Telemetry
 
-Crie uma sessão com snake_case:
+Create a session with snake_case:
 
 ```bash
 curl -sS -X POST "$BASE/playback/sessions" \
@@ -167,7 +169,7 @@ curl -sS -X POST "$BASE/playback/sessions" \
   -d '{"video_id":"big-buck-bunny","user_id":"student-1"}'
 ```
 
-Envie o `id` retornado em eventos:
+Send the returned `id` in events:
 
 ```bash
 curl -i -X POST "$BASE/playback/events" \
@@ -175,20 +177,20 @@ curl -i -X POST "$BASE/playback/events" \
   -d '{"video_id":"big-buck-bunny","session_id":"session-...","type":"quality_change","position":42.5,"payload":{"height":720,"bitrate":2500000}}'
 ```
 
-`video_id`, `session_id`, `position` e `payload` são opcionais; somente `type` é
-obrigatório. Se `session_id` for informado, a sessão precisa existir. O servidor
-aceita qualquer string de tipo, retorna `202` com `{ "accepted": true,
-"event_id": "..." }` e mantém sessões/eventos somente em memória. Não há
-`sequence`, deduplicação ou lista fechada de eventos. `/metrics` expõe
-`streamlab_http_requests_total`, `streamlab_playback_events_total` e
-`streamlab_playback_events_stored` em formato Prometheus.
+`video_id`, `session_id`, `position`, and `payload` are optional; only `type` is
+required. If `session_id` is provided, the session must exist. The server accepts
+any type string, returns `202` with `{ "accepted": true, "event_id": "..." }`,
+and keeps sessions/events only in memory. There is no `sequence`, deduplication,
+or closed event list. `/metrics` exposes `streamlab_http_requests_total`,
+`streamlab_playback_events_total`, and `streamlab_playback_events_stored` in
+Prometheus format.
 
-## Aprendizado prático
+## Practical Learning
 
-Para separar as camadas, compare `GET /stream` com o manifest HLS: o primeiro
-usa Range sobre um objeto; o segundo referencia segmentos. Gere a mesma fonte
-com `scripts/generate-ladder.sh`, `scripts/generate-hls.sh` e
-`scripts/generate-dash.sh`, valide com `scripts/validate-media.sh` e observe
-`#EXTINF`, `Representation`, codec, resolução e bitrate com
-`scripts/ffprobe-media.sh`. Registre sempre versão do FFmpeg, preset, GOP,
-duração de segmento e tamanho dos artefatos antes de comparar resultados.
+To separate the layers, compare `GET /stream` with the HLS manifest: the former
+uses Range on an object; the latter references segments. Generate the same source
+with `scripts/generate-ladder.sh`, `scripts/generate-hls.sh`, and
+`scripts/generate-dash.sh`, validate with `scripts/validate-media.sh`, and
+inspect `#EXTINF`, `Representation`, codec, resolution, and bitrate with
+`scripts/ffprobe-media.sh`. Always record the FFmpeg version, preset, GOP,
+segment duration, and artifact size before comparing results.

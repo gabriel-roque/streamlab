@@ -1,39 +1,39 @@
-# 004 — CDN e cache
+# 004 — CDN and Caching
 
-## Pergunta
+## Question
 
-Quanto tráfego deixa de chegar à origem quando manifests e segmentos são
-cacheáveis?
+How much traffic no longer reaches the origin when manifests and segments are
+cacheable?
 
-## Procedimento
+## Procedure
 
-O Compose coloca NGINX entre o browser e a API, mas não implementa ainda um CDN
-ou proxy de manifests/segmentos para MinIO. Use o fluxo abaixo para confirmar o
-comportamento atual; depois coloque um cache reverso externo entre o cliente e
-o endpoint e repita duas sessões para o mesmo manifest/segmentos.
+Compose places NGINX between the browser and the API, but does not yet implement
+a CDN or manifest/segment proxy for MinIO. Use the flow below to confirm the
+current behavior; then place an external reverse cache between the client and
+the endpoint and repeat two sessions for the same manifest/segments.
 
 ```bash
 scripts/smoke-http.sh --url http://localhost:3000 \
   --path /api/videos/ID/playback/hls
 ```
 
-Substitua `ID` por um upload local em estado `READY`. O fixture remoto
-`abr-lab` retorna a URL HLS pública em `/api/videos/abr-lab/playback`, mas não
-possui manifest local para ser buscado por essa rota.
+Replace `ID` with a local upload in `READY` state. The remote `abr-lab` fixture
+returns the public HLS URL at `/api/videos/abr-lab/playback`, but has no local
+manifest to fetch through this route.
 
-## Medir
+## Measure
 
-`Age`, `ETag`, `Cache-Control`, hit/miss, latência p50/p95, bytes no origin,
-requests ao origin e taxa de revalidação. No Compose atual, `/api/*` é proxy
-para a API, que não envia `Age`, `ETag` ou `Cache-Control`; `/media/` é o único
-path estático do NGINX e aponta para a mídia local, não para artifacts. Portanto
-esses sinais só aparecem depois de adicionar/configurar o cache do experimento.
-Em um VOD real, use manifests com TTL menor que segmentos e não cacheie resposta
-privada sem considerar credenciais.
+`Age`, `ETag`, `Cache-Control`, hit/miss, p50/p95 latency, origin bytes, origin
+requests, and revalidation rate. In the current Compose setup, `/api/*` is a
+proxy to the API, which does not send `Age`, `ETag`, or `Cache-Control`; `/media/`
+is NGINX's only static path and points to local media, not artifacts. Therefore,
+these signals appear only after adding/configuring the experiment's cache. In
+real VOD, use manifests with a shorter TTL than segments and do not cache a
+private response without considering credentials.
 
-## Critério
+## Criteria
 
-A segunda leitura do mesmo segmento deve ser um HIT observável no cache
-adicionado, e a API/origem deve receber menos bytes. Teste também invalidação,
-`If-None-Match` e cache miss após expiração; não espere esses comportamentos do
-NGINX padrão deste repositório.
+The second read of the same segment should be an observable HIT in the added
+cache, and the API/origin should receive fewer bytes. Also test invalidation,
+`If-None-Match`, and a cache miss after expiration; do not expect these behaviors
+from this repository's default NGINX.

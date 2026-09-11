@@ -1,22 +1,22 @@
-# Experimentos
+# Experiments
 
-Todos os resultados devem registrar data, commit, hardware, versão do FFmpeg,
-fonte, parâmetros, métricas brutas e conclusão. Nunca compare execuções com
-ladder, duração ou preset diferentes.
+All results must record the date, commit, hardware, FFmpeg version, source,
+parameters, raw metrics, and conclusion. Never compare runs with different
+ladders, durations, or presets.
 
-| ID | Tema | Resultado principal |
+| ID | Topic | Main result |
 |---|---|---|
-| 001 | HTTP Range | comportamento 200/206 e seek |
-| 002 | HLS | duração de segmento e startup |
-| 003 | ABR | rebuffer e qualidade sob throttling |
-| 004 | CDN | hit ratio, origem e latência |
-| 005 | Métricas | definições e coleta de QoE |
-| 006 | Retries/DLQ | recuperação e poison jobs |
-| 007 | CPU/GPU | tempo, custo e qualidade |
-| 008 | Codecs | eficiência e compatibilidade |
-| 009 | VMAF | qualidade objetiva vs bitrate |
-| 010 | Per-title | ladder baseada em conteúdo |
-| 011 | Chaos | blast radius e recuperação |
+| 001 | HTTP Range | 200/206 behavior and seeking |
+| 002 | HLS | segment duration and startup |
+| 003 | ABR | rebuffering and quality under throttling |
+| 004 | CDN | hit ratio, origin, and latency |
+| 005 | Metrics | QoE definitions and collection |
+| 006 | Retries/DLQ | recovery and poison jobs |
+| 007 | CPU/GPU | time, cost, and quality |
+| 008 | Codecs | efficiency and compatibility |
+| 009 | VMAF | objective quality vs. bitrate |
+| 010 | Per-title | content-based ladder |
+| 011 | Chaos | blast radius and recovery |
 
-Os comandos de mídia funcionam com FFmpeg instalado ou com `MEDIA_TOOL=docker`.
-Veja `docs/architecture/README.md` para o fluxo completo.
+Media commands work with FFmpeg installed or with `MEDIA_TOOL=docker`. See
+`docs/architecture/README.md` for the complete flow.

@@ -1,13 +1,14 @@
 # 001 — HTTP Range
 
-## Pergunta
+## Question
 
-O servidor entrega seek e retomada sem transferir o MP4 inteiro?
+Can the server provide seeking and resumption without transferring the entire
+MP4?
 
-## Procedimento
+## Procedure
 
-Faça um upload local primeiro e guarde o `id` retornado. Com Compose, `BASE` é
-`http://localhost:3000/api`; com a API executada diretamente, use
+First perform a local upload and save the returned `id`. With Compose, `BASE` is
+`http://localhost:3000/api`; with the API run directly, use
 `http://localhost:8080`:
 
 ```bash
@@ -16,19 +17,20 @@ curl -i -H 'Range: bytes=1000000-1000999' "$BASE/videos/ID/stream" -o /tmp/range
 curl -I -H 'Range: bytes=0-0' "$BASE/videos/ID/stream"
 ```
 
-Registrar `206 Partial Content`, `Accept-Ranges: bytes`, `Content-Range`,
-`Content-Length` e o tamanho efetivamente recebido. Repetir com range inválido,
-sem range e com `HEAD`. A API atual não envia `ETag` e não implementa
-`If-Range`, então esses headers não fazem parte do experimento executável.
+Record `206 Partial Content`, `Accept-Ranges: bytes`, `Content-Range`,
+`Content-Length`, and the actual number of bytes received. Repeat with an
+invalid range, without a range, and with `HEAD`. The current API does not send
+`ETag` or implement `If-Range`, so these headers are not part of the executable
+experiment.
 
-## Critério e métricas
+## Criteria and Metrics
 
-Os ranges válidos devem retornar exatamente os bytes pedidos e o range inválido
-deve retornar `416`. O `200` sem Range deve continuar sendo reprodutível. Medir
-latência, bytes enviados e tempo de seek no player; não atribuir cache hit ao
-endpoint, pois a API não define headers de cache para esse recurso.
+Valid ranges must return exactly the requested bytes, and an invalid range must
+return `416`. The `200` response without Range must remain reproducible. Measure
+latency, bytes sent, and player seek time; do not attribute a cache hit to the
+endpoint because the API does not define cache headers for this resource.
 
-## Cuidados
+## Caveats
 
-Não confundir `206` com streaming adaptativo: Range é transporte de um objeto;
-HLS/DASH escolhe representações e segmentos.
+Do not confuse `206` with adaptive streaming: Range transports an object;
+HLS/DASH selects representations and segments.

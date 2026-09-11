@@ -1,25 +1,25 @@
-# 008 — Comparação de codecs
+# 008 — Codec Comparison
 
-## Pergunta
+## Question
 
-Quanto bitrate cada codec precisa para a mesma qualidade e qual é o custo de
-encode/decode?
+How much bitrate does each codec need for the same quality, and what is the
+encode/decode cost?
 
-## Procedimento
+## Procedure
 
-Codifique o mesmo trecho com H.264, HEVC, VP9 e AV1, mantendo resolução,
-framerate, áudio, duração e alvo de qualidade. Use o encoder disponível e
-registre versão/build; ausência de encoder é resultado de compatibilidade, não
-motivo para inventar números.
+Encode the same clip with H.264, HEVC, VP9, and AV1, keeping resolution,
+framerate, audio, duration, and quality target constant. Use the available
+encoder and record its version/build; an unavailable encoder is a compatibility
+result, not a reason to invent numbers.
 
-## Medir
+## Measure
 
-Tamanho, bitrate, fps de encode, tempo, CPU/GPU, VMAF quando houver referência,
-tempo de startup e suporte do player. Reporte bitrate por qualidade e não uma
-ordenação absoluta.
+Size, bitrate, encoding fps, time, CPU/GPU, VMAF when a reference is available,
+startup time, and player support. Report bitrate by quality, not an absolute
+ranking.
 
-## Riscos
+## Risks
 
-Licenças, hardware, presets e tuning mudam o resultado. Uma única cena de
-Big Buck Bunny não representa todo catálogo; repita em animação, baixa luz e
-alto movimento.
+Licenses, hardware, presets, and tuning change the result. A single Big Buck
+Bunny scene does not represent the entire catalog; repeat with animation, low
+light, and high motion.

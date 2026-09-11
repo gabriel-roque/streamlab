@@ -1,27 +1,27 @@
-# ADR-005: PostgreSQL para metadados
+# ADR-005: PostgreSQL for Metadata
 
-- **Status:** aceito
+- **Status:** accepted
 - **Data:** 2026-09-10
 
-## Contexto
+## Context
 
-Vídeos, variantes, jobs, tentativas e sessões têm relações e transições que
-precisam de consulta e consistência.
+Videos, variants, jobs, attempts, and sessions have relationships and
+transitions that require querying and consistency.
 
-## Decisão
+## Decision
 
-O Compose provisiona PostgreSQL para o estágio de catálogo, mas a implementação
-atual mantém vídeos e jobs no `LocalStore`/`MemoryQueue` em memória. A API não
-abre conexão PostgreSQL e não persiste bytes no banco.
+Compose provisions PostgreSQL for the catalog stage, but the current
+implementation keeps videos and jobs in the in-memory `LocalStore`/`MemoryQueue`.
+The API does not open a PostgreSQL connection or persist bytes in the database.
 
-## Alternativas
+## Alternatives
 
-- Redis como fonte principal: bom para estado efêmero, fraco como catálogo.
-- Documento NoSQL: flexível, mas menos útil para invariantes relacionais da fase.
-- Arquivos JSON: reproduzíveis, mas não concorrentes.
+- Redis as the primary source: good for ephemeral state, weak as a catalog.
+- NoSQL document: flexible, but less useful for the phase's relational invariants.
+- JSON files: reproducible, but not concurrent.
 
-## Consequências
+## Consequences
 
-Ao migrar para PostgreSQL, transições deverão ser atômicas e indexadas por
-`video_id`, `status` e `created_at`. Hoje essas garantias não existem após um
-restart e métricas são contadores da instância em memória.
+When migrating to PostgreSQL, transitions must be atomic and indexed by
+`video_id`, `status`, and `created_at`. These guarantees do not exist after a
+restart today, and metrics are counters for the in-memory instance.

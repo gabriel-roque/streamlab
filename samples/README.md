@@ -1,22 +1,22 @@
-# Amostras
+# Samples
 
-Esta pasta contém somente instruções e metadados versionáveis. O Big Buck Bunny
-é baixado sob demanda pela fonte oficial da Blender Foundation:
+This directory contains only versionable instructions and metadata. Big Buck Bunny
+is downloaded on demand from the official Blender Foundation source:
 
 ```text
 https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4.zip
 ```
 
-O arquivo oficial é um ZIP; `scripts/download-bbb.sh` extrai o MP4 e chama
-FFprobe. Nenhum vídeo, segmento ou manifesto gerado deve ser commitado:
+The official file is a ZIP; `scripts/download-bbb.sh` extracts the MP4 and calls
+FFprobe. No video, segment, or generated manifest should be committed:
 
 ```bash
 scripts/download-bbb.sh
 scripts/ffprobe-media.sh --input samples/raw/big-buck-bunny-1080p-normal.mp4
 ```
 
-Para transformar a fonte em uma ladder H.264/AAC e empacotá-la nos dois
-protocolos:
+To transform the source into an H.264/AAC ladder and package it for both
+protocols:
 
 ```bash
 scripts/generate-ladder.sh --input samples/raw/big-buck-bunny-1080p-normal.mp4
@@ -28,20 +28,21 @@ scripts/validate-media.sh --input samples/generated/hls --kind hls
 scripts/validate-media.sh --input samples/generated/dash --kind dash
 ```
 
-O HLS gerado tem `master.m3u8`, playlists por resolução e segmentos MPEG-TS;
-o DASH tem `manifest.mpd`, inicializações e chunks. `--segment-seconds` é um
-alvo: confira `#EXTINF`, `Representation` e os arquivos com
-`ffprobe-media.sh`. Os scripts aceitam FFmpeg local ou `MEDIA_TOOL=docker`.
+The generated HLS has `master.m3u8`, resolution-specific playlists, and MPEG-TS
+segments; DASH has `manifest.mpd`, initialization files, and chunks.
+`--segment-seconds` is a target: check `#EXTINF`, `Representation`, and the
+files with `ffprobe-media.sh`. The scripts support local FFmpeg or
+`MEDIA_TOOL=docker`.
 
-Também existem dois fixtures públicos sem download automático quando a API
-inicia: `big-buck-bunny` usa
-`https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4` como
-MP4 remoto, e `abr-lab` usa
-`https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8` como HLS multi-rendição.
-Consulte-os com `GET /videos/{id}/playback`; eles não têm mídia ou manifest local
-no `LocalStore`.
+There are also two public fixtures that are not downloaded automatically when the
+API starts: `big-buck-bunny` uses
+`https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4` as
+a remote MP4, and `abr-lab` uses
+`https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8` as a multi-variant HLS.
+Query them with `GET /videos/{id}/playback`; they have no local media or manifest
+in `LocalStore`.
 
-Com Compose, a API fica atrás do proxy em `http://localhost:3000/api`:
+With Compose, the API is behind the proxy at `http://localhost:3000/api`:
 
 ```bash
 docker compose up --build
@@ -51,13 +52,13 @@ curl -X POST http://localhost:3000/api/videos \
   -F 'file=@samples/raw/big-buck-bunny-1080p-normal.mp4;type=video/mp4'
 ```
 
-O último comando retorna `202` e inicia o processamento assíncrono. Consulte
-`/api/videos/{id}/status` até `READY`; depois use `/api/videos/{id}/playback`.
-O container Compose instala FFmpeg/FFprobe para que esse fluxo produza HLS real e
-um manifesto DASH didático. Se a API for executada localmente sem essas
-ferramentas, ela usa o fixture didático; para comparar os dois caminhos e gerar
-um pacote DASH real com variantes, rode os scripts de mídia explicitamente.
+The last command returns `202` and starts asynchronous processing. Check
+`/api/videos/{id}/status` until `READY`; then use `/api/videos/{id}/playback`.
+The Compose container installs FFmpeg/FFprobe so this flow produces real HLS and
+an educational DASH manifest. If the API is run locally without these tools, it
+uses the educational fixture; to compare both paths and generate a real DASH
+package with variants, run the media scripts explicitly.
 
-Os diretórios `raw/` e `generated/` são ignorados localmente. Para repetir um
-experimento em outro ambiente, registre o URL, o hash SHA-256 opcional do
-arquivo baixado, a versão do FFmpeg e os parâmetros do script no relatório.
+The `raw/` and `generated/` directories are ignored locally. To repeat an
+experiment in another environment, record the URL, the optional SHA-256 hash of
+the downloaded file, the FFmpeg version, and the script parameters in the report.

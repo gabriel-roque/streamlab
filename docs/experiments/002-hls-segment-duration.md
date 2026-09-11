@@ -1,13 +1,13 @@
-# 002 — HLS e duração de segmento
+# 002 — HLS and Segment Duration
 
-## Pergunta
+## Question
 
-Qual tamanho equilibra startup, adaptação e overhead de requests?
+What size balances startup, adaptation, and request overhead?
 
-## Procedimento
+## Procedure
 
-Gerar pacotes com 2, 4, 6, 10 e 12 segundos, mantendo fonte, codec, ladder e
-GOP constantes. Use uma pasta de saída diferente para cada execução:
+Generate packages with 2, 4, 6, 10, and 12 seconds, keeping the source, codec,
+ladder, and GOP constant. Use a different output directory for each run:
 
 ```bash
 scripts/generate-hls.sh --input samples/raw/big-buck-bunny-1080p-normal.mp4 \
@@ -15,18 +15,18 @@ scripts/generate-hls.sh --input samples/raw/big-buck-bunny-1080p-normal.mp4 \
 scripts/validate-media.sh --input samples/generated/hls-6s --kind hls
 ```
 
-Executar o mesmo fluxo para cada diretório de saída. Conte segmentos, tamanho
-médio e duração indicada por `#EXTINF`.
+Run the same flow for each output directory. Count segments, average size, and
+the duration indicated by `#EXTINF`.
 
-## Medir
+## Measure
 
-Startup time, requests por minuto, tempo até primeira troca de qualidade,
-rebuffer ratio, tamanho do manifest e cache hit ratio. A aceitação é uma
-conclusão baseada no conjunto, não um número universal.
+Startup time, requests per minute, time to the first quality switch, rebuffer
+ratio, manifest size, and cache hit ratio. Acceptance is a conclusion based on
+the complete set, not a universal number.
 
-## Cuidados
+## Caveats
 
-Sem keyframes alinhados, `hls_time` é apenas uma intenção e os cortes podem
-escapar da duração nominal. O script de ladder fixa H.264/AAC, `yuv420p` e GOP
-de 48 frames; confirme no manifest e em `ffprobe`, em vez de assumir que cada
-segmento tem exatamente o valor solicitado.
+Without aligned keyframes, `hls_time` is only an intention and cuts may deviate
+from the nominal duration. The ladder script fixes H.264/AAC, `yuv420p`, and a
+48-frame GOP; confirm this in the manifest and with `ffprobe` instead of
+assuming that every segment has exactly the requested value.

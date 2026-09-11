@@ -21,10 +21,14 @@ describe("StreamLab library", () => {
   it("filters assets by search and status", async () => {
     render(<App />);
     await screen.findByText("Big Buck Bunny");
-    fireEvent.change(screen.getByLabelText("Buscar videos"), { target: { value: "camera" } });
+    fireEvent.change(screen.getByLabelText("Search videos"), {
+      target: { value: "camera" },
+    });
     expect(screen.getByText("Camera ingest / studio B")).toBeInTheDocument();
     expect(screen.queryByText("Big Buck Bunny")).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("Filtrar por status"), { target: { value: "READY" } });
+    fireEvent.change(screen.getByLabelText("Filter by status"), {
+      target: { value: "READY" },
+    });
     expect(screen.getByText("No assets found")).toBeInTheDocument();
   });
 
@@ -39,8 +43,12 @@ describe("StreamLab library", () => {
   it("opens a ready asset detail view", async () => {
     render(<App />);
     await screen.findByText("Big Buck Bunny");
-    fireEvent.click(screen.getByRole("button", { name: "Abrir Big Buck Bunny" }));
-    await waitFor(() => expect(screen.getByText("Asset metadata")).toBeInTheDocument());
+    fireEvent.click(
+      screen.getByRole("button", { name: "Open Big Buck Bunny" }),
+    );
+    await waitFor(() =>
+      expect(screen.getByText("Asset metadata")).toBeInTheDocument(),
+    );
     expect(screen.getByText("Playback observability")).toBeInTheDocument();
   });
 });

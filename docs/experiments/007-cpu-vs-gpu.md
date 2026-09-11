@@ -1,25 +1,25 @@
 # 007 — CPU versus GPU
 
-## Pergunta
+## Question
 
-Qual é o trade-off entre throughput, custo, consumo e qualidade no hardware
-disponível?
+What is the trade-off between throughput, cost, consumption, and quality on the
+available hardware?
 
-## Procedimento
+## Procedure
 
-Fixe fonte, resolução, duração, bitrate e saída. Compare `libx264` com NVENC
-quando uma GPU NVIDIA e runtime compatível estiverem disponíveis. Não compare
-`preset` CPU com `preset` GPU sem documentar o mapeamento.
+Fix the source, resolution, duration, bitrate, and output. Compare `libx264` with
+NVENC when an NVIDIA GPU and compatible runtime are available. Do not compare a
+CPU `preset` with a GPU `preset` without documenting the mapping.
 
 ```bash
 time MEDIA_TOOL=local scripts/generate-ladder.sh --input samples/raw/big-buck-bunny-1080p-normal.mp4 --output-dir samples/generated/cpu
 ```
 
-Repita usando uma imagem/runtime que exponha NVENC; o fallback Docker genérico
-não garante acesso à GPU.
+Repeat using an image/runtime that exposes NVENC; the generic Docker fallback
+does not guarantee GPU access.
 
-## Medir
+## Measure
 
-Wall time, fps de encode, CPU%, GPU%, memória, energia/custo estimado, tamanho,
-bitrate efetivo e VMAF. Registre warm-up e concorrência. Aceleração não é
-melhoria se a qualidade ou a compatibilidade cair fora do limite.
+Wall time, encoding fps, CPU%, GPU%, memory, estimated energy/cost, size,
+effective bitrate, and VMAF. Record warm-up and concurrency. Acceleration is not
+an improvement if quality or compatibility falls outside the limit.

@@ -1,29 +1,29 @@
-# 006 — Retries e DLQ
+# 006 — Retries and DLQ
 
-## Pergunta
+## Question
 
-O pipeline recupera falhas transitórias sem reprocessar infinitamente um job
-corrompido?
+Does the pipeline recover from transient failures without infinitely
+reprocessing a corrupted job?
 
-## Procedimento
+## Procedure
 
-1. Observe o job criado pelo upload em `GET /videos/{id}/status`.
-2. Em testes de código, faça o handler falhar e observe `RETRYING`, até três
-   retries (quatro execuções totais contando a primeira), e depois `DLQ`.
-3. Registre que a fila atual não expõe uma rota HTTP para injetar falha, replay
-   ou consultar a DLQ; um arquivo arbitrário pode seguir pelo fixture e não é
-   um teste confiável de erro de transcodificação.
+1. Observe the job created by the upload at `GET /videos/{id}/status`.
+2. In code tests, make the handler fail and observe `RETRYING`, up to three
+   retries (four total executions including the first), and then `DLQ`.
+3. Record that the current queue exposes no HTTP route to inject a failure,
+   replay, or query the DLQ; an arbitrary file may proceed through the fixture
+   and is not a reliable transcoding-error test.
 
-O comportamento implementado usa `max_retries=3` e atraso curto linear em
-memória, sem jitter, lease, correlation ID ou persistência. Para o exercício de
-arquitetura, substitua-o por backoff exponencial com jitter e registre razão,
-primeiro erro, última tentativa e correlation ID. A chave de saída desejada
-continua determinística por `video_id/profile/version`.
+The implemented behavior uses `max_retries=3` and a short linear delay in
+memory, without jitter, lease, correlation ID, or persistence. For the
+architecture exercise, replace it with exponential backoff with jitter and
+record the reason, first error, last attempt, and correlation ID. The desired
+output key remains deterministic by `video_id/profile/version`.
 
-## Critério
+## Criteria
 
-Na fila atual, valide que o job chega a `DLQ` após o limite e que o vídeo pode
-permanecer `PROCESSING`; não há garantia de recuperação após crash, pois a fila
-é em memória. Na arquitetura-alvo, não deve haver dois artefatos públicos
-concorrentes, um crash não pode perder o job e o replay da DLQ deve ser explícito
-e auditável.
+In the current queue, verify that the job reaches `DLQ` after the limit and that
+the video may remain `PROCESSING`; recovery after a crash is not guaranteed
+because the queue is in memory. In the target architecture, there must not be
+two competing public artifacts, a crash must not lose the job, and DLQ replay
+must be explicit and auditable.

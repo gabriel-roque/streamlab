@@ -1,17 +1,17 @@
 # 009 — VMAF
 
-## Pergunta
+## Question
 
-Qual bitrate entrega qualidade perceptual aceitável em cada resolução?
+What bitrate delivers acceptable perceptual quality at each resolution?
 
-## Procedimento
+## Procedure
 
-Use o original como referência alinhada e cada encode como distorted. Garanta
-mesmo framerate, resolução, crop e duração; se necessário, normalize antes de
-calcular. Com `libvmaf` disponível, execute uma medição por variante e salve o
-JSON/CSV e a versão do modelo.
+Use the original as the aligned reference and each encode as distorted. Ensure
+the same framerate, resolution, crop, and duration; normalize before calculating
+if necessary. With `libvmaf` available, run one measurement per variant and save
+the JSON/CSV and model version.
 
-Exemplo conceitual:
+Conceptual example:
 
 ```bash
 ffmpeg -i encoded.mp4 -i original.mp4 -lavfi \
@@ -19,8 +19,8 @@ ffmpeg -i encoded.mp4 -i original.mp4 -lavfi \
   -f null -
 ```
 
-## Medir e interpretar
+## Measure and Interpret
 
-Compare VMAF médio e p5/p1 com bitrate, tamanho e tempo de encode. Procure
-degraus da ladder, não um único número mágico. VMAF não mede startup, rebuffer,
-artefatos de áudio ou compatibilidade do dispositivo.
+Compare mean VMAF and p5/p1 with bitrate, size, and encoding time. Look for
+ladder steps, not a single magic number. VMAF does not measure startup,
+rebuffering, audio artifacts, or device compatibility.

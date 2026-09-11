@@ -1,27 +1,27 @@
-# ADR-007: H.264 como codec inicial
+# ADR-007: H.264 as the Initial Codec
 
-- **Status:** aceito
+- **Status:** accepted
 - **Data:** 2026-09-10
 
-## Contexto
+## Context
 
-O primeiro caminho precisa ser decodificável por browsers e players sem
-hardware específico, preservando a capacidade de comparar codecs depois.
+The first path must be decodable by browsers and players without specific
+hardware, while preserving the ability to compare codecs later.
 
-## Decisão
+## Decision
 
-A ladder inicial usa H.264/AVC com pixel format `yuv420p` e áudio AAC. HEVC,
-VP9 e AV1 ficam em experimentos separados, com compatibilidade explicitamente
-medida.
+The initial ladder uses H.264/AVC with `yuv420p` pixel format and AAC audio.
+HEVC, VP9, and AV1 are covered in separate experiments, with compatibility
+explicitly measured.
 
-## Alternativas
+## Alternatives
 
-- AV1: melhor eficiência potencial, encode e suporte mais variáveis.
-- HEVC: eficiente, mas com questões de licenciamento e suporte.
-- VP9: opção aberta, mas não mantém o mesmo perfil de compatibilidade inicial.
+- AV1: potentially more efficient, with more variable encoding and support.
+- HEVC: efficient, but with licensing and support concerns.
+- VP9: an open option, but it does not maintain the same initial compatibility
+  profile.
 
-## Consequências
+## Consequences
 
-O bitrate não é comparável entre codecs sem uma métrica de qualidade. O
-experimento registra tempo, tamanho, VMAF quando disponível e taxa de falha do
-player.
+Bitrate is not comparable across codecs without a quality metric. The experiment
+records time, size, VMAF when available, and player failure rate.

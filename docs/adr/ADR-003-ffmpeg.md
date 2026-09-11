@@ -1,26 +1,26 @@
-# ADR-003: FFmpeg como transcoder
+# ADR-003: FFmpeg as the Transcoder
 
-- **Status:** aceito
+- **Status:** accepted
 - **Data:** 2026-09-10
 
-## Contexto
+## Context
 
-O laboratório precisa suportar probe, filtros, codecs, HLS e DASH em uma cadeia
-reproduzível.
+The lab needs to support probing, filters, codecs, HLS, and DASH in a
+reproducible pipeline.
 
-## Decisão
+## Decision
 
-Usar FFmpeg e FFprobe como ferramentas de referência. Os scripts aceitam
-execução local ou `MEDIA_TOOL=docker` com `jrottenberg/ffmpeg:6.1-ubuntu`.
+Use FFmpeg and FFprobe as reference tools. The scripts support local execution or
+`MEDIA_TOOL=docker` with `jrottenberg/ffmpeg:6.1-ubuntu`.
 
-## Alternativas
+## Alternatives
 
-- GStreamer: excelente composição, mas aumenta o custo inicial de operação.
-- Serviço gerenciado de transcoding: esconde decisões importantes do estudo.
-- Bibliotecas próprias: não são necessárias para o objetivo do laboratório.
+- GStreamer: excellent composition, but increases the initial operational cost.
+- Managed transcoding service: hides important decisions from the study.
+- Custom libraries: unnecessary for the lab's objective.
 
-## Consequências
+## Consequences
 
-Versão, flags e hardware precisam ser registrados nos experimentos. Presets
-rápidos não são comparáveis a qualidade constante; toda comparação deve fixar
-codec, resolução, duração e critério de qualidade.
+Version, flags, and hardware must be recorded in experiments. Fast presets are
+not comparable at constant quality; every comparison must fix the codec,
+resolution, duration, and quality criterion.

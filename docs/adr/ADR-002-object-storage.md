@@ -1,29 +1,29 @@
-# ADR-002: Object storage para bytes de mídia
+# ADR-002: Object Storage for Media Bytes
 
-- **Status:** aceito
+- **Status:** accepted
 - **Data:** 2026-09-10
 
-## Contexto
+## Context
 
-Originais e segmentos são grandes, imutáveis e têm padrão de leitura diferente
-dos metadados transacionais.
+Originals and segments are large, immutable, and have a different read pattern
+from transactional metadata.
 
-## Decisão
+## Decision
 
-Manter filesystem local como adapter atual: `media/` guarda originais e
-`artifacts/{video_id}/` guarda manifests/segmentos. O Compose também sobe MinIO
-com interface compatível com S3 para o próximo estágio, mas a API atual não se
-conecta a ele nem entrega upload por URL pré-assinada.
+Keep the local filesystem as the current adapter: `media/` stores originals and
+`artifacts/{video_id}/` stores manifests/segments. Compose also starts MinIO with
+an S3-compatible interface for the next stage, but the current API does not
+connect to it or provide uploads through presigned URLs.
 
-## Alternativas
+## Alternatives
 
-- MinIO/S3 desde o início: representa object storage, mas ainda não é usado pelo
-  código executável.
-- Guardar bytes no PostgreSQL: acopla escala de banco ao throughput de mídia.
-- S3 desde o início: realista, mas menos reproduzível offline.
+- MinIO/S3 from the start: represents object storage, but is not yet used by the
+  executable code.
+- Store bytes in PostgreSQL: couples database scale to media throughput.
+- S3 from the start: realistic, but less reproducible offline.
 
-## Consequências
+## Consequences
 
-O adapter local não oferece retenção, versionamento, URLs assinadas ou
-publicação atômica de prefixos. Essas são preocupações do estágio MinIO/S3; por
-enquanto, reiniciar a API perde metadados, mas os bytes do diretório persistem.
+The local adapter does not provide retention, versioning, signed URLs, or atomic
+prefix publication. These are concerns for the MinIO/S3 stage; for now,
+restarting the API loses metadata, but the directory's bytes persist.

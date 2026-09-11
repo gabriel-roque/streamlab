@@ -1,17 +1,17 @@
 # StreamLab
 
-Laboratório de streaming de vídeo para estudar o caminho completo:
+Video streaming lab for studying the complete path:
 
 ```text
 upload -> probe -> encoding -> HLS/DASH -> player ABR -> QoE
 ```
 
-O projeto recebe um vídeo, analisa seus streams com FFprobe, processa a mídia
-com FFmpeg, publica artefatos de playback e mede a experiência do player.
+The project receives a video, analyzes its streams with FFprobe, processes the
+media with FFmpeg, publishes playback artifacts, and measures player experience.
 
 ## Quick Start
 
-Requisitos: Docker Compose v2, `curl`, `jq` e `unzip`.
+Requirements: Docker Compose v2, `curl`, `jq`, and `unzip`.
 
 ```bash
 git clone https://github.com/gabriel-roque/streamlab.git
@@ -19,76 +19,76 @@ cd streamlab
 ./scripts/quick-start.sh
 ```
 
-O script:
+The script:
 
-1. Sobe a stack completa.
-2. Escolhe portas livres automaticamente.
-3. Baixa o Big Buck Bunny oficial.
-4. Faz upload pela API.
-5. Aguarda `PROCESSING -> READY`.
-6. Imprime os links da biblioteca, playback, Grafana e Prometheus.
+1. Starts the full stack.
+2. Automatically chooses free ports.
+3. Downloads the official Big Buck Bunny.
+4. Uploads it through the API.
+5. Waits for `PROCESSING -> READY`.
+6. Prints the library, playback, Grafana, and Prometheus links.
 
-Para reutilizar o arquivo já baixado:
+To reuse the already-downloaded file:
 
 ```bash
 ./scripts/quick-start.sh --skip-download
 ```
 
-Abra o endereço `Library` impresso pelo script e selecione o card
-`Big Buck Bunny quick-start`.
+Open the `Library` address printed by the script and select the
+`Big Buck Bunny quick-start` card.
 
-## Como Funciona
+## How It Works
 
 ```mermaid
 flowchart LR
-  A[Arquivo original] --> B[API Go]
+  A[Source file] --> B[Go API]
   B --> C[MemoryQueue]
   C --> D[Worker FFmpeg]
   D --> E[HLS + MPD]
   E --> F[Player hls.js]
-  F --> G[Eventos QoE]
+  F --> G[QoE events]
 ```
 
-### Key Words
+### Key Concepts
 
-| Conceito | Explicação curta |
+| Concept | Short explanation |
 | --- | --- |
-| Codec | Como vídeo ou áudio é comprimido, por exemplo H.264 e AAC. |
-| Container | A caixa que organiza streams, timestamps e metadados, por exemplo MP4. |
-| Bitrate | Quantidade de bits por segundo usada para representar a mídia. |
-| Manifesto | Índice que aponta para playlists, variantes e segmentos. |
-| Segmento | Parte curta do vídeo baixada pelo player. |
-| ABR | Escolha automática de qualidade conforme rede e buffer. |
-| QoE | Medição do que o espectador percebe: startup, buffer e switches. |
+| Codec | How video or audio is compressed, such as H.264 and AAC. |
+| Container | The box that organizes streams, timestamps, and metadata, such as MP4. |
+| Bitrate | Number of bits per second used to represent the media. |
+| Manifest | Index pointing to playlists, variants, and segments. |
+| Segment | Short part of the video downloaded by the player. |
+| ABR | Automatic quality selection based on network and buffer conditions. |
+| QoE | Measurement of what the viewer perceives: startup, buffering, and switches. |
 
-### Por que não somente MP4?
+### Why Not MP4 Only?
 
-MP4 progressivo é simples, mas uma única versão pode ser pesada para uma rede
-lenta ou incompatível com um dispositivo. HLS divide o vídeo em segmentos e pode
-oferecer diferentes qualidades. O player escolhe a próxima qualidade sem baixar
-o arquivo inteiro.
+Progressive MP4 is simple, but a single version can be too heavy for a slow
+network or incompatible with a device. HLS divides the video into segments and
+can offer different qualities. The player chooses the next quality without
+downloading the entire file.
 
-![Pipeline do arquivo ao player](./docs/images/pipeline-original-player.svg)
+![File-to-player pipeline](./docs/images/pipeline-original-player.svg)
 
-![MP4 progressivo versus HLS](./docs/images/mp4-progressive-vs-hls.svg)
+![Progressive MP4 versus HLS](./docs/images/mp4-progressive-vs-hls.svg)
 
-![ABR adaptando qualidade e buffer](./docs/images/abr-adaptation-buffer-network.svg)
+![ABR adapting quality and buffer](./docs/images/abr-adaptation-buffer-network.svg)
 
-## Demonstração
+## Demo
 
-### Pela interface
+### Through the UI
 
-1. Abra a biblioteca no endereço mostrado pelo Quick Start.
-2. Abra `Big Buck Bunny quick-start` para ver o asset processado.
-3. Observe protocolo, resolução, bitrate, buffer e estado `READY`.
-4. Abra `ABR Ladder / live probe` para testar HLS multi-rendição.
-5. Deixe `quality` em `Auto` ou selecione `1080p`, `720p` e `480p`.
+1. Open the library at the address shown by Quick Start.
+2. Open `Big Buck Bunny quick-start` to view the processed asset.
+3. Observe the protocol, resolution, bitrate, buffer, and `READY` status.
+4. Open `ABR Ladder / live probe` to test multi-variant HLS.
+5. Leave `quality` set to `Auto` or select `1080p`, `720p`, or `480p`.
 
-### Pela API
+### Through the API
 
 ```bash
 BASE=http://localhost:3000/api
-VIDEO_ID=vid-cole-o-id-do-script
+VIDEO_ID=vid-paste-the-id-from-script
 
 curl -fsS "$BASE/videos/$VIDEO_ID/status" | jq
 curl -fsS "$BASE/videos/$VIDEO_ID/playback" | jq
@@ -96,7 +96,7 @@ curl -fsS "$BASE/videos/$VIDEO_ID/playback/hls"
 curl -fsS "$BASE/metrics"
 ```
 
-Teste HTTP Range:
+Test HTTP Range:
 
 ```bash
 curl -i -H 'Range: bytes=0-1023' \
@@ -104,50 +104,49 @@ curl -i -H 'Range: bytes=0-1023' \
   -o /tmp/streamlab-range.bin
 ```
 
-O esperado é `206 Partial Content`, `Accept-Ranges` e `Content-Range`.
+The expected result is `206 Partial Content`, `Accept-Ranges`, and `Content-Range`.
 
-## Limites Atuais
+## Current Limits
 
-| Área | Estado do MVP |
+| Area | MVP status |
 | --- | --- |
-| Upload e probe | Reais no Compose, usando disco local e FFmpeg/FFprobe. |
-| HLS local | Manifesto e segmentos reais de uma representação. |
-| ABR | Demonstrado pelo fixture HLS público e pelos scripts de ladder. |
-| DASH local | MPD didático para inspeção; scripts geram DASH completo. |
-| Dados e fila | Em memória, portanto reiniciar perde catálogo, jobs e telemetria. |
-| Infraestrutura | PostgreSQL, Redis e MinIO estão no Compose para evolução. |
-| Produção | Ainda faltam storage de objetos, CDN, workers distribuídos e autenticação. |
+| Upload and probe | Real in Compose, using local disk and FFmpeg/FFprobe. |
+| Local HLS | Real manifest and segments for one representation. |
+| ABR | Demonstrated by the public HLS fixture and ladder scripts. |
+| Local DASH | Educational MPD for inspection; scripts generate full DASH. |
+| Data and queue | In memory, so restarting loses the catalog, jobs, and telemetry. |
+| Infrastructure | PostgreSQL, Redis, and MinIO are in Compose for future evolution. |
+| Production | Object storage, CDN, distributed workers, and authentication are still missing. |
 
-Essa separação é intencional: o projeto mostra o fluxo real local e documenta o
-caminho para uma arquitetura distribuída.
+This separation is intentional: the project shows the real local flow and
+documents the path to a distributed architecture.
 
-## O Que Demonstra
+## What It Demonstrates
 
-O projeto serve como evidência prática de conhecimento em:
+The project provides practical evidence of knowledge in:
 
-- Encoding, transcoding, codecs, containers e bitrate.
-- FFprobe, FFmpeg, HLS, MPEG-DASH e segmentos.
-- HTTP Range Requests e streaming progressivo.
-- Adaptive Bitrate Streaming e buffer.
-- Filas, processamento assíncrono, retries e DLQ conceitual.
-- Telemetria de playback e métricas de QoE.
-- Object storage, cache, CDN e escalabilidade como próximos passos.
+- Encoding, transcoding, codecs, containers, and bitrate.
+- FFprobe, FFmpeg, HLS, MPEG-DASH, and segments.
+- HTTP Range Requests and progressive streaming.
+- Adaptive Bitrate Streaming and buffering.
+- Queues, asynchronous processing, retries, and conceptual DLQ.
+- Playback telemetry and QoE metrics.
+- Object storage, caching, CDN, and scalability as next steps.
 
-## Documentação
+## Documentation
 
-- [Contrato HTTP](./docs/api-contract.md)
-- [Arquitetura](./docs/architecture/README.md)
+- [HTTP contract](./docs/api-contract.md)
+- [Architecture](./docs/architecture/README.md)
 - [ADRs](./docs/adr/README.md)
-- [Experimentos](./docs/experiments/README.md)
-- [Amostras de mídia](./samples/README.md)
-- [Plano completo do projeto](<./Plano de Projeto — Plataforma de Streaming de Vídeo.md>)
+- [Experiments](./docs/experiments/README.md)
+- [Media samples](./samples/README.md)
 
-## Fontes
+## Sources
 
-O Quick Start baixa o Big Buck Bunny da Blender Foundation sob demanda. O
-catálogo também possui um fixture HLS público da Mux para testar ABR. Os vídeos
-não são versionados neste repositório.
+Quick Start downloads Big Buck Bunny from the Blender Foundation on demand. The
+catalog also includes a public HLS fixture from Mux for testing ABR. Videos are
+not versioned in this repository.
 
 - [Big Buck Bunny](https://studio.blender.org/films/big-buck-bunny/)
-- [Fonte oficial para download](https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4.zip)
+- [Official download source](https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4.zip)
 - [Fixture HLS Mux](https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8)

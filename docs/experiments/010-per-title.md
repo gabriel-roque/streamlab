@@ -1,28 +1,29 @@
 # 010 — Per-title encoding
 
-## Pergunta
+## Question
 
-Uma ladder baseada na complexidade do título economiza bytes sem degradar QoE?
+Can a ladder based on title complexity save bytes without degrading QoE?
 
-## Procedimento
+## Procedure
 
-Separe títulos por baixa, média e alta complexidade usando movimento, cortes,
-textura e resolução. Faça uma análise curta, gere curvas bitrate x VMAF e
-selecione pontos com qualidade mínima e distância útil entre representações.
+Separate titles into low, medium, and high complexity using motion, cuts,
+texture, and resolution. Perform a short analysis, generate bitrate x VMAF
+curves, and select points with minimum quality and useful distance between
+representations.
 
-Compare com a ladder fixa do script:
+Compare with the script's fixed ladder:
 
 ```bash
 scripts/generate-ladder.sh --input samples/raw/big-buck-bunny-1080p-normal.mp4
 ```
 
-## Critério
+## Criteria
 
-Para a mesma meta de qualidade, a ladder per-title deve reduzir bitrate/bytes ou
-melhorar qualidade sem aumentar rebuffer. Verifique que ainda há uma variante
-compatível com redes lentas e que os segmentos continuam alinhados.
+For the same quality target, the per-title ladder should reduce bitrate/bytes or
+improve quality without increasing rebuffering. Verify that a variant remains
+compatible with slow networks and that segments remain aligned.
 
-## Cuidados
+## Caveats
 
-O custo do encode adicional, cache fragmentation, número de variantes e tempo
-de decisão fazem parte do resultado econômico.
+The cost of additional encoding, cache fragmentation, number of variants, and
+decision time are part of the economic result.

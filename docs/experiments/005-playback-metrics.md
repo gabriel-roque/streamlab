@@ -1,31 +1,31 @@
-# 005 — Métricas de playback
+# 005 — Playback Metrics
 
-## Contrato de medição
+## Measurement Contract
 
-- `startup_time`: primeiro frame menos intenção de play.
-- `rebuffer_ratio`: tempo parado por falta de dados dividido pelo tempo
-  efetivamente reproduzido. O player atual envia `rebuffer_start`, mas ainda não
-  calcula esse intervalo nem envia `rebuffer_end`; trate a fórmula como contrato
-  experimental, não como métrica pronta da aplicação.
-- `average_bitrate`: bytes de mídia consumidos dividido pelo tempo de mídia.
-- `quality_switches`: contagem de mudanças de representação.
-- `error_rate`: sessões com erro dividido por sessões iniciadas.
+- `startup_time`: first frame minus play intent.
+- `rebuffer_ratio`: time stalled due to missing data divided by the time actually
+  played. The current player sends `rebuffer_start`, but does not yet calculate
+  this interval or send `rebuffer_end`; treat the formula as an experimental
+  contract, not as an application-ready metric.
+- `average_bitrate`: consumed media bytes divided by media time.
+- `quality_switches`: count of representation changes.
+- `error_rate`: sessions with an error divided by started sessions.
 
-## Procedimento
+## Procedure
 
-Execute sessões com rede estável e variável. Crie uma sessão em
-`POST /playback/sessions` e envie eventos com os campos `video_id`, `session_id`,
-`type`, `position` e `payload` para o contrato em `docs/api-contract.md`. O
-frontend atual envia, entre outros, `play`, `pause`, `seek`, `playing`,
-`rebuffer_start`, `quality_change` e `audio_change`. O servidor aceita qualquer
-`type`, não implementa `sequence` nem deduplicação e guarda os eventos somente
-em memória.
+Run sessions with stable and variable networks. Create a session at
+`POST /playback/sessions` and send events with the `video_id`, `session_id`,
+`type`, `position`, and `payload` fields according to the contract in
+`docs/api-contract.md`. The current frontend sends, among others, `play`,
+`pause`, `seek`, `playing`, `rebuffer_start`, `quality_change`, and `audio_change`.
+The server accepts any `type`, does not implement `sequence` or deduplication,
+and stores events only in memory.
 
-## Análise
+## Analysis
 
-Agrupe p50/p95/p99 por vídeo, variante, navegador, região e rede. Não publique
-média global sem tamanho de amostra. Correlacione `startup_time` com cache miss
-quando houver um cache externo, mas não trate correlação como causalidade. Use
-`/metrics` para confirmar a contagem agregada de eventos aceitos, não para obter
-p50/p95 de QoE: esses percentis precisam ser calculados a partir dos eventos
-coletados pelo experimento.
+Group p50/p95/p99 by video, variant, browser, region, and network. Do not publish
+a global average without a sample size. Correlate `startup_time` with cache miss
+when an external cache is present, but do not treat correlation as causation. Use
+`/metrics` to confirm the aggregate count of accepted events, not to obtain QoE
+p50/p95: these percentiles must be calculated from the events collected by the
+experiment.

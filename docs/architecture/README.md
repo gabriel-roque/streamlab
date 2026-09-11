@@ -1,11 +1,11 @@
-# Arquitetura do StreamLab
+# StreamLab Architecture
 
-O repositório contém uma implementação local mínima e uma arquitetura-alvo
-para estudo. Esta distinção é importante: hoje a API Go usa memória, filesystem
-local e uma fila em memória; PostgreSQL, Redis e MinIO são serviços provisionados
-no Compose, mas ainda não são usados pelo código da API.
+The repository contains a minimal local implementation and a target architecture
+for study. This distinction matters: the Go API currently uses memory, a local
+filesystem, and an in-memory queue; PostgreSQL, Redis, and MinIO are provisioned
+services in Compose, but are not yet used by the API code.
 
-## Caminho implementado hoje
+## Current Implemented Path
 
 ```mermaid
 flowchart LR
@@ -13,7 +13,7 @@ flowchart LR
   nginx[NGINX :3000]
   api[Go API :8080]
   store[(LocalStore\nmedia + artifacts)]
-  queue[[MemoryQueue\nworker único]]
+  queue[[MemoryQueue\nsingle worker]]
   telemetry[(Telemetry\nin-memory)]
   browser -->|/api/*| nginx
   nginx -->|remove /api| api
@@ -24,49 +24,51 @@ flowchart LR
   api --> telemetry
 ```
 
-- `POST /videos` com multipart grava o arquivo no storage local, responde `202`
-  e enfileira um job `transcode`; o campo multipart recomendado é `file`.
-- O worker tenta `ffprobe`/`ffmpeg` quando os binários existem. Caso contrário,
-  publica fixtures HLS/DASH para manter o laboratório executável.
-- O processador publica `hls.m3u8` e `manifest.mpd` e marca o vídeo como
-  `READY`; o HLS do fixture é uma playlist de mídia, não uma master com ladder.
-- `/videos/{id}/stream` entrega o arquivo original local com `Range`; manifests e
-  artefatos são entregues por `/videos/{id}/playback/...`.
-- O catálogo e a telemetria são perdidos ao reiniciar a API. A fila tem tamanho
-  32 e retry em memória, com máximo padrão de três tentativas e DLQ em memória.
+- `POST /videos` with multipart writes the file to local storage, returns `202`,
+  and enqueues a `transcode` job; the recommended multipart field is `file`.
+- The worker attempts `ffprobe`/`ffmpeg` when the binaries exist. Otherwise, it
+  publishes HLS/DASH fixtures to keep the lab executable.
+- The processor publishes `hls.m3u8` and `manifest.mpd` and marks the video
+  `READY`; the fixture HLS is a media playlist, not a master with a ladder.
+- `/videos/{id}/stream` serves the original local file with `Range`; manifests and
+  artifacts are served by `/videos/{id}/playback/...`.
+- The catalog and telemetry are lost when the API restarts. The queue has a size
+  of 32 and in-memory retries, with a default maximum of three attempts and an
+  in-memory DLQ.
 
-## Diagrama da arquitetura-alvo
+## Target Architecture Diagram
 
-O desenho abaixo é didático e não representa conexões já implementadas:
+The diagram below is educational and does not represent connections that are
+already implemented:
 
 ```mermaid
 flowchart LR
   client[Browser / Player]
-  api[API de controle]
-  catalog[(PostgreSQL\nmetadados e jobs)]
-  object[(Object Storage\noriginal + derivados)]
+  api[Control API]
+  catalog[(PostgreSQL\nmetadata and jobs)]
+  object[(Object Storage\noriginal + derivatives)]
   broker[[Broker\nvideo events]]
   analyzer[Analyzer\nffprobe]
   transcoder[Transcoder workers\nFFmpeg]
   packager[Packager\nHLS + DASH]
-  cdn[CDN / NGINX\ncache de segmentos]
+  cdn[CDN / NGINX\nsegment cache]
   telemetry[Telemetry API]
-  metrics[(Prometheus / métricas)]
+  metrics[(Prometheus / metrics)]
   dlq[[DLQ]]
 
   client -->|metadata / upload / playback| api
   api --> catalog
-  api -->|futuro: upload direto| object
+  api -->|future: direct upload| object
   object -->|VideoUploaded| broker
   broker --> analyzer
   analyzer --> catalog
   analyzer --> broker
   broker --> transcoder
   transcoder -->|outputs| object
-  transcoder -->|falha após retry| dlq
+  transcoder -->|failure after retry| dlq
   object --> packager
   packager --> object
-  client -->|manifest + segmentos| cdn
+  client -->|manifest + segments| cdn
   cdn -->|cache miss| object
   client --> telemetry
   api --> metrics
@@ -76,41 +78,42 @@ flowchart LR
   telemetry --> metrics
 ```
 
-Na arquitetura-alvo, a API não deve transportar segmentos, o object storage é
-a fonte de verdade dos bytes, consumidores são idempotentes e `READY` só é
-publicado após validar as variantes. Essas propriedades ainda são objetivos de
-evolução, não garantias do laboratório atual.
+In the target architecture, the API should not transport segments, object storage
+is the source of truth for bytes, consumers are idempotent, and `READY` is only
+published after variants are validated. These properties are still evolution
+goals, not guarantees of the current lab.
 
-## Compose e portas
+## Compose and Ports
 
 ```bash
 docker compose up --build
 curl http://localhost:3000/api/healthz
 ```
 
-O frontend fica em `http://localhost:3000`; o proxy usa `http://localhost:3000/api`
-para a API. O serviço `api` expõe `8080` apenas na rede do Compose. Portas
-publicadas adicionais são Postgres `5432`, Redis `6379`, MinIO `9000` e console
-MinIO `9001`, Prometheus `9090` e Grafana `3001`. Elas não mudam o fato de que a
-implementação Go usa `LocalStore`; os valores de `DATABASE_URL`, `REDIS_URL` e
-`MINIO_*` presentes no Compose são preparação para a arquitetura-alvo.
+The frontend is available at `http://localhost:3000`; the proxy uses
+`http://localhost:3000/api` for the API. The `api` service exposes `8080` only on
+the Compose network. Additional published ports are Postgres `5432`, Redis
+`6379`, MinIO `9000` and MinIO console `9001`, Prometheus `9090`, and Grafana
+`3001`. This does not change the fact that the Go implementation uses
+`LocalStore`; the `DATABASE_URL`, `REDIS_URL`, and `MINIO_*` values in Compose
+prepare for the target architecture.
 
-Para executar a API fora do Compose:
+To run the API outside Compose:
 
 ```bash
 go run ./apps/api
 curl http://localhost:8080/health
 ```
 
-Nesse modo, `PORT` altera a porta e `STREAMLAB_STORAGE_ROOT` (ou `STORAGE_PATH`)
-altera o diretório de `media/` e `artifacts/`. A API sem `CORS_ORIGIN` responde
-`Access-Control-Allow-Origin: *`.
+In this mode, `PORT` changes the port and `STREAMLAB_STORAGE_ROOT` (or
+`STORAGE_PATH`) changes the `media/` and `artifacts/` directory. The API without
+`CORS_ORIGIN` responds with `Access-Control-Allow-Origin: *`.
 
-## Laboratório de encoding
+## Encoding Lab
 
-Os scripts em `scripts/` são independentes da API e usam FFmpeg local ou, na
-ausência dele, Docker. A imagem da API no Compose também instala FFmpeg/FFprobe,
-por isso o Quick Start exercita probe e empacotamento HLS real:
+The scripts in `scripts/` are independent of the API and use local FFmpeg or
+Docker when it is unavailable. The API image in Compose also installs
+FFmpeg/FFprobe, so Quick Start exercises real probing and HLS packaging:
 
 ```bash
 scripts/download-bbb.sh
@@ -122,24 +125,23 @@ scripts/validate-media.sh --input samples/generated/hls --kind hls
 scripts/validate-media.sh --input samples/generated/dash --kind dash
 ```
 
-Use `MEDIA_TOOL=local` para exigir ferramentas locais ou
-`MEDIA_TOOL=docker` para usar `jrottenberg/ffmpeg:6.1-ubuntu`. Compare sempre o
-manifesto gerado, os `#EXTINF`, os segmentos, `Representation`, codec, resolução
-e bitrate; `hls_time`/`seg_duration` são alvos, então valide a duração efetiva.
-Se a API for executada fora do Compose sem FFmpeg/FFprobe, ela usa fixtures
-didáticos e isso deve ser tratado como um caminho de fallback, não como encoding
-de produção.
+Use `MEDIA_TOOL=local` to require local tools or `MEDIA_TOOL=docker` to use
+`jrottenberg/ffmpeg:6.1-ubuntu`. Always compare the generated manifest, the
+`#EXTINF` values, segments, `Representation`, codec, resolution, and bitrate;
+`hls_time`/`seg_duration` are targets, so validate the effective duration. If
+the API runs outside Compose without FFmpeg/FFprobe, it uses educational fixtures;
+this should be treated as a fallback path, not production encoding.
 
-## Fontes públicas
+## Public Sources
 
-Por padrão a API sem `DisableSeed` cria `big-buck-bunny`, apontando para o MP4
-público do Google, e `abr-lab`, apontando para o master HLS público do Mux.
-Esses itens são catálogo remoto: não há bytes locais nem manifests locais para
-eles. O upload/geração local usa a fonte oficial Blender documentada em
+By default, the API without `DisableSeed` creates `big-buck-bunny`, pointing to
+Google's public MP4, and `abr-lab`, pointing to Mux's public HLS master. These
+items are remote catalog entries: they have no local bytes or local manifests.
+Local upload/generation uses the official Blender source documented in
 `samples/README.md`.
 
-## Documentos relacionados
+## Related Documents
 
-- [Contrato HTTP](../api-contract.md)
+- [HTTP contract](../api-contract.md)
 - [ADRs](../adr/README.md)
-- [Experimentos](../experiments/README.md)
+- [Experiments](../experiments/README.md)
