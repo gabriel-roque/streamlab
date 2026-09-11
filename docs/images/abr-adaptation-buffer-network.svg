@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+  <title id="title">ABR alternando entre 1080p, 720p e 480p</title>
+  <desc id="desc">Linha do tempo mostra o ABR mantendo 1080p, descendo para 720p e 480p durante uma queda de rede e subindo gradualmente quando o buffer se recupera.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07090f"/>
+      <stop offset="1" stop-color="#0d111a"/>
+    </linearGradient>
+    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5ed9d0"/>
+    </marker>
+    <style>
+      .title { fill: #eef1f7; font: 700 30px Arial, Helvetica, sans-serif; letter-spacing: -0.8px; }
+      .subtitle { fill: #7f8a9d; font: 15px Arial, Helvetica, sans-serif; }
+      .eyebrow { fill: #b9f227; font: 600 11px 'Courier New', monospace; letter-spacing: 2px; }
+      .panel { fill: #0d111a; stroke: #242c39; stroke-width: 1.5; }
+      .axis { fill: #7f8a9d; font: 11px 'Courier New', monospace; }
+      .level { fill: #eef1f7; font: 700 14px Arial, Helvetica, sans-serif; }
+      .copy { fill: #aeb7c5; font: 13px Arial, Helvetica, sans-serif; }
+      .small { fill: #7f8a9d; font: 11px Arial, Helvetica, sans-serif; }
+      .mono { fill: #5ed9d0; font: 12px 'Courier New', monospace; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="760" fill="url(#bg)"/>
+  <path d="M 40 116 H 1240" stroke="#242c39"/>
+  <text x="40" y="48" class="eyebrow">STREAMLAB / ABR</text>
+  <text x="40" y="86" class="title">Qualidade acompanha a rede</text>
+  <text x="925" y="79" class="subtitle">ABR protege o buffer antes do rebuffer</text>
+
+  <rect x="40" y="150" width="1200" height="354" rx="6" class="panel"/>
+  <text x="66" y="186" class="eyebrow">NÍVEL ESCOLHIDO PELO PLAYER</text>
+
+  <g stroke="#242c39" stroke-width="1">
+    <path d="M 172 230 H 1150"/>
+    <path d="M 172 315 H 1150"/>
+    <path d="M 172 400 H 1150"/>
+    <path d="M 172 475 H 1150"/>
+    <path d="M 172 230 V 475"/>
+    <path d="M 416 230 V 475" stroke-dasharray="4 5"/>
+    <path d="M 660 230 V 475" stroke-dasharray="4 5"/>
+    <path d="M 904 230 V 475" stroke-dasharray="4 5"/>
+    <path d="M 1150 230 V 475"/>
+  </g>
+  <text x="66" y="235" class="level">1080p</text>
+  <text x="66" y="320" class="level">720p</text>
+  <text x="66" y="405" class="level">480p</text>
+  <text x="66" y="480" class="axis">tempo</text>
+  <text x="172" y="496" class="axis">0s</text>
+  <text x="404" y="496" class="axis">12s</text>
+  <text x="648" y="496" class="axis">24s</text>
+  <text x="892" y="496" class="axis">36s</text>
+  <text x="1135" y="496" class="axis">48s</text>
+
+  <path d="M 172 230 H 410 V 315 H 626 V 400 H 842 V 315 H 1014 V 230 H 1150" fill="none" stroke="#b9f227" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M 172 230 H 410" fill="none" stroke="#5ed9d0" stroke-width="3"/>
+  <path d="M 410 315 H 626" fill="none" stroke="#ff6e75" stroke-width="3"/>
+  <path d="M 626 400 H 842" fill="none" stroke="#ff6e75" stroke-width="3"/>
+  <path d="M 842 315 H 1014" fill="none" stroke="#5ed9d0" stroke-width="3"/>
+  <path d="M 1014 230 H 1150" fill="none" stroke="#5ed9d0" stroke-width="3"/>
+  <circle cx="410" cy="230" r="7" fill="#07090f" stroke="#ff6e75" stroke-width="3"/>
+  <circle cx="626" cy="315" r="7" fill="#07090f" stroke="#ff6e75" stroke-width="3"/>
+  <circle cx="842" cy="400" r="7" fill="#07090f" stroke="#5ed9d0" stroke-width="3"/>
+  <circle cx="1014" cy="315" r="7" fill="#07090f" stroke="#b9f227" stroke-width="3"/>
+
+  <rect x="347" y="199" width="126" height="25" rx="12" fill="#121823" stroke="#ff6e75"/>
+  <text x="410" y="216" text-anchor="middle" fill="#ff6e75" font="600 10px 'Courier New', monospace">REDE CAI</text>
+  <rect x="905" y="423" width="126" height="25" rx="12" fill="#121823" stroke="#5ed9d0"/>
+  <text x="968" y="440" text-anchor="middle" fill="#5ed9d0" font="600 10px 'Courier New', monospace">REDE VOLTA</text>
+
+  <g transform="translate(40 536)">
+    <rect width="1200" height="174" rx="6" class="panel"/>
+    <text x="26" y="34" class="eyebrow">SINAIS OBSERVADOS</text>
+
+    <text x="26" y="72" class="copy">throughput</text>
+    <rect x="160" y="56" width="600" height="22" rx="3" fill="#121823" stroke="#384557"/>
+    <path d="M 161 58 L 315 58 L 315 63 L 468 63 L 468 72 L 620 72 L 620 64 L 760 64" fill="none" stroke="#ff6e75" stroke-width="4"/>
+    <circle cx="315" cy="63" r="4" fill="#ff6e75"/>
+    <circle cx="620" cy="72" r="4" fill="#ff6e75"/>
+    <text x="780" y="72" class="mono">8 → 3 → 1.2 → 5 Mbps</text>
+
+    <text x="26" y="119" class="copy">buffer</text>
+    <rect x="160" y="103" width="600" height="22" rx="3" fill="#121823" stroke="#384557"/>
+    <path d="M 161 108 L 315 108 L 468 113 L 620 120 L 760 112" fill="none" stroke="#5ed9d0" stroke-width="4"/>
+    <circle cx="468" cy="113" r="4" fill="#5ed9d0"/>
+    <circle cx="620" cy="120" r="4" fill="#5ed9d0"/>
+    <text x="780" y="119" class="mono">12s → 8s → 3s → 7s</text>
+
+    <rect x="930" y="28" width="238" height="119" rx="4" fill="#121823" stroke="#384557"/>
+    <text x="952" y="55" class="eyebrow">REGRA CONSERVADORA</text>
+    <text x="952" y="82" class="copy">queda de rede + buffer curto</text>
+    <path d="M 952 98 H 1028" stroke="#b9f227" stroke-width="2" marker-end="url(#arrow-cyan)"/>
+    <text x="1042" y="103" class="copy">reduz antes de travar</text>
+    <text x="952" y="130" class="small">sobe gradualmente na recuperação</text>
+  </g>
+
+  <circle cx="68" cy="734" r="5" fill="#b9f227"/>
+  <text x="84" y="739" class="small">ABR decide por segmento, não por um arquivo inteiro</text>
+  <circle cx="470" cy="734" r="5" fill="#ff6e75"/>
+  <text x="486" y="739" class="small">vermelho = pressão de rede</text>
+  <circle cx="740" cy="734" r="5" fill="#5ed9d0"/>
+  <text x="756" y="739" class="small">ciano = sinal estável</text>
+</svg>

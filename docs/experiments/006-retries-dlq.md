@@ -9,7 +9,7 @@ corrompido?
 
 1. Observe o job criado pelo upload em `GET /videos/{id}/status`.
 2. Em testes de código, faça o handler falhar e observe `RETRYING`, até três
-   tentativas, e depois `DLQ`.
+   retries (quatro execuções totais contando a primeira), e depois `DLQ`.
 3. Registre que a fila atual não expõe uma rota HTTP para injetar falha, replay
    ou consultar a DLQ; um arquivo arbitrário pode seguir pelo fixture e não é
    um teste confiável de erro de transcodificação.

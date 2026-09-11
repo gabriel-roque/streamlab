@@ -12,7 +12,8 @@ independentemente do pedido de upload.
 
 O upload grava o arquivo e enfileira um job `transcode` em uma fila em memória.
 Um worker processa análise/empacotamento no mesmo processo, com estados
-`QUEUED`, `RUNNING`, `RETRYING`, `SUCCEEDED` e `DLQ`, até três tentativas. Não há
+`QUEUED`, `RUNNING`, `RETRYING`, `SUCCEEDED` e `DLQ`, com até três retries
+(quatro execuções totais contando a primeira). Não há
 broker, lease, evento `VideoUploaded` ou chave de idempotência na implementação
 atual; esses itens ficam para a evolução do laboratório.
 

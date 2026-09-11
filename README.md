@@ -9,6 +9,163 @@ embutido na API e um player com `hls.js`. A aplicação foi desenhada para evolu
 de um ambiente local simples para uma arquitetura com storage de objetos,
 mensageria e processamento distribuído.
 
+## O que este projeto demonstra
+
+Enviar um vídeo não significa torná-lo pronto para reprodução eficiente. O
+sistema precisa receber o arquivo, descobrir o que existe dentro dele, converter
+codecs quando necessário, dividir a mídia em partes, entregar essas partes pela
+rede e medir o que o espectador realmente percebe. O StreamLab torna esse fluxo
+visível em um laboratório local:
+
+```text
+upload -> probe -> transcode -> package -> playback -> ABR -> QoE
+```
+
+Em outras palavras: este não é apenas um CRUD de vídeos. É um estudo de como um
+arquivo vira uma experiência de streaming.
+
+### Por que não entregar somente um MP4?
+
+Um MP4 único é simples e continua sendo útil. Porém, ele não resolve bem todos
+os cenários:
+
+| Problema | O que acontece sem um pipeline de mídia |
+| --- | --- |
+| Internet instável | O player pode travar enquanto espera dados chegarem. |
+| Celular e TV diferentes | Um único tamanho/codec pode ser pesado ou incompatível. |
+| Seek | O cliente precisa buscar uma parte específica do arquivo. |
+| Escala | Todos os usuários dependem da mesma origem e do mesmo bitrate. |
+| Observabilidade | É difícil saber se o vídeo demorou para iniciar ou rebufferizou. |
+
+HLS e MPEG-DASH resolvem parte disso dividindo o vídeo em segmentos e oferecendo
+representações diferentes. O player escolhe o próximo segmento conforme a rede,
+o buffer e o dispositivo.
+
+### Mapa visual do projeto
+
+Estas imagens são diagramas SVG versionados no repositório, não ilustrações
+decorativas: cada uma representa uma decisão técnica que pode ser reproduzida no
+Quick Start e nos experimentos.
+
+![Pipeline do arquivo original ao player](./docs/images/pipeline-original-player.svg)
+
+![Diferença entre MP4 progressivo e HLS segmentado](./docs/images/mp4-progressive-vs-hls.svg)
+
+![ABR adaptando qualidade, buffer e rede](./docs/images/abr-adaptation-buffer-network.svg)
+
+## Entenda sem jargão
+
+| Termo | Analogia | Tradução técnica |
+| --- | --- | --- |
+| **Encoding** | Regravar um filme em uma versão menor e compatível. | Transformar frames e áudio em streams comprimidos com um codec e parâmetros definidos. |
+| **Codec** | O idioma usado para escrever e ler o conteúdo. | H.264, H.265, VP9, AV1, AAC e outros algoritmos de compressão/decodificação. |
+| **Container** | A caixa que leva filme, áudio, timestamps e metadados. | MP4, MKV, MOV, MPEG-TS ou WebM. A caixa não é o codec. |
+| **Bitrate** | A vazão de uma torneira. | Quantos bits por segundo são usados; normalmente escrito em kbps ou Mbps. |
+| **Manifesto** | O índice de um livro. | M3U8 no HLS ou MPD no DASH; aponta para playlists, variantes e segmentos. |
+| **Segmento** | Um capítulo curto que pode ser baixado separadamente. | Um `.ts` ou fragmento MP4 de alguns segundos. |
+| **GOP/keyframe** | Uma página completa a cada grupo de páginas dependentes. | Keyframes permitem começar a decodificar; frames intermediários dependem do GOP. |
+| **ABR** | Escolher entre edição pesada, média ou leve conforme a estrada. | Adaptive Bitrate seleciona a próxima representação com base em throughput e buffer. |
+| **QoE** | A avaliação de quem está assistindo, não só do servidor. | Startup time, rebuffer, bitrate médio, switches e erros percebidos. |
+| **CDN** | Filiais próximas ao público em vez de um único depósito central. | Cache distribuído que entrega manifestos e segmentos perto do usuário. |
+
+### Codec não é container
+
+Um arquivo pode ser descrito assim:
+
+```text
+filme.mp4
+├── container: MP4
+├── video: H.264
+└── audio: AAC
+```
+
+O container organiza os streams e seus timestamps. O codec decide como cada
+stream é comprimido. É possível ter H.264 dentro de MP4 ou MPEG-TS; trocar a
+extensão não troca automaticamente o codec.
+
+### Bitrate, resolução e qualidade
+
+Resolução é o número de pixels; bitrate é quanto espaço por segundo está
+disponível para representar esses pixels e o áudio. Uma imagem 1080p pode ter
+bitrate baixo e artefatos ou bitrate alto e mais detalhe. Por isso uma ladder
+costuma combinar resolução e bitrate, por exemplo `480p / 1.2 Mbps`, `720p / 3
+Mbps` e `1080p / 5.8 Mbps`. Esses valores são alvos/anúncios e devem ser
+conferidos com `ffprobe`; não são medições universais.
+
+### GOP e keyframe
+
+Um keyframe é um ponto que pode ser decodificado sem depender de frames
+anteriores. Os demais frames podem guardar apenas diferenças. O GOP é o grupo
+entre keyframes. Em 30 fps, um GOP de 48 frames equivale a aproximadamente 1,6
+segundo, não 48 segundos. Segmentar perto de keyframes ajuda o player a trocar
+de representação sem quebrar a decodificação. `hls_time=6` é um alvo de duração
+de segmento, não uma garantia de que todos terão exatamente seis segundos.
+
+## O caminho técnico, passo a passo
+
+1. **Ingestão:** o navegador envia `multipart/form-data` para `POST /videos`.
+   A API grava o original e responde `202 Accepted`, porque não espera o encode
+   terminar para confirmar o recebimento.
+2. **Fila:** um job `transcode` entra na `MemoryQueue`. Isso separa o tempo de
+   upload do trabalho pesado de CPU.
+3. **Media probe:** `ffprobe` lê container, streams, codecs, duração, resolução,
+   bitrate e áudio. O sistema não deveria escolher uma ladder no escuro.
+4. **Transcoding:** FFmpeg decodifica a origem e codifica uma saída H.264/AAC
+   adequada ao navegador. No Compose, o áudio é normalizado para estéreo para
+   aumentar a compatibilidade.
+5. **Packaging:** o pipeline local gera uma media playlist HLS real e segmentos
+   MPEG-TS. O MPD local atual é didático; os scripts de laboratório geram um
+   pacote DASH completo para estudo.
+6. **Distribuição:** o NGINX encaminha API e player, enquanto a API serve os
+   artefatos locais. Em produção, essa função seria separada para object storage
+   e CDN.
+7. **Playback:** `hls.js` lê o manifesto, baixa segmentos e mantém um buffer.
+   O vídeo não precisa estar inteiro no computador para começar.
+8. **Medição:** o player envia eventos de play, pause, seek, quality change e
+   erros. O painel mostra sinais de QoE e `/metrics` expõe contadores Prometheus.
+
+## O que é real, didático e futuro
+
+Ser explícito sobre limites também demonstra domínio de arquitetura:
+
+| Camada | No StreamLab atual | Próxima evolução |
+| --- | --- | --- |
+| Upload | Multipart para disco local, com `Range` no original. | Presigned URL direto para S3/MinIO. |
+| Probe/transcode | FFprobe/FFmpeg reais no Compose; worker em memória. | Analyzer e transcoders independentes. |
+| HLS local | Playlist real de uma representação e segmentos reais. | Master playlist com ladder gerada por título. |
+| ABR | Fixture HLS Mux com múltiplas rendições e scripts de ladder. | Publicar variantes próprias no player. |
+| DASH local | MPD didático para inspeção. | Manifesto e segmentos DASH publicados pelo packager. |
+| Dados | Catálogo, jobs e telemetria em memória. | PostgreSQL e Redis Streams/RabbitMQ. |
+| Distribuição | NGINX local e volume compartilhado. | Object storage, cache de edge e CDN multi-região. |
+| QoE | Eventos e contadores básicos. | Rebuffer ratio, percentis e séries temporais calculadas. |
+
+Não confundir `READY` com “produto de produção”: no MVP ele significa que o
+worker terminou o artefato que conhece. Em uma plataforma real, `READY` só seria
+publicado depois de validar duração, codecs, segmentos, manifestos e todas as
+representações esperadas.
+
+## Como demonstrar domínio em cinco minutos
+
+| Tempo | Demonstração | O que explicar |
+| --- | --- | --- |
+| 0:00–0:30 | Mostre o diagrama e rode o Quick Start. | O problema é transformar arquivo em experiência adaptativa. |
+| 0:30–1:15 | Mostre upload, `202`, `PROCESSING` e `READY`. | Upload é assíncrono porque encode é CPU-intensive. |
+| 1:15–2:00 | Abra o asset local e consulte o status/playback. | Probe, transcode, manifesto, segmentos e Range são camadas diferentes. |
+| 2:00–3:00 | Abra `ABR Ladder / live probe` em `Auto`. | ABR real usa o HLS multi-rendição público; o upload local atual tem uma representação. |
+| 3:00–4:00 | Mostre `/metrics`, buffer e switches. | QoE mede a experiência percebida, não apenas saúde da API. |
+| 4:00–5:00 | Explique LocalStore/MemoryQueue e a arquitetura futura. | Mostre trade-offs: simplicidade local versus durabilidade, escala e CDN. |
+
+Perguntas que este repositório permite responder:
+
+| Pergunta | Evidência | Limite assumido |
+| --- | --- | --- |
+| Por que `202 Accepted`? | Job assíncrono e status polling. | A fila ainda não é durável. |
+| MP4 é igual a HLS? | Diagramas, `/stream` e `/playback/hls`. | HLS local não é uma ladder própria ainda. |
+| Como funciona `Range`? | Resposta `206`, `Content-Range` e experimento 001. | Range trabalha em bytes, não escolhe bitrate. |
+| Como ABR troca qualidade? | Fixture Mux, `hls.js` e experimento 003. | A ladder local própria é trabalho futuro. |
+| O que medir em QoE? | Eventos, painel e `/metrics`. | Rebuffer ratio e percentis ainda são experimentais. |
+| Como escalar? | ADRs e arquitetura-alvo. | Postgres, Redis, MinIO e CDN ainda são fundação. |
+
 ## Quick Start: clonar, subir e testar
 
 O caminho recomendado para uma demonstração limpa é um único script. Ele valida
@@ -25,7 +182,8 @@ cd streamlab
 Pré-requisitos: Docker com Compose v2, `curl`, `jq` e `unzip`. O primeiro ciclo
 pode levar alguns minutos porque baixa a mídia de demonstração e constrói as
 imagens. O container da API já inclui FFmpeg/FFprobe, então o upload percorre o
-pipeline real de probe, transcode e empacotamento HLS/DASH.
+pipeline real de probe, transcode e empacotamento HLS; o MPD local é didático e o
+pacote DASH completo pode ser gerado pelos scripts.
 
 Ao final, o terminal mostra algo semelhante a:
 
@@ -350,8 +508,8 @@ sequenceDiagram
   A-->>B: 202 Accepted + video
   Q->>W: entrega job
   W->>S: lê mídia original
-  W->>F: probe e gera HLS/DASH
-  F-->>W: manifestos e segmentos
+  W->>F: probe, gera HLS e MPD didático
+  F-->>W: manifesto e segmentos HLS
   W->>S: grava artefatos e atualiza READY
   B->>A: GET /videos/{id}/status
   A-->>B: estado e jobs
@@ -360,6 +518,11 @@ sequenceDiagram
 O script de laboratório para uma ladder completa usa perfis H.264/AAC de
 `240p`, `360p`, `480p`, `720p` e `1080p`, limitados pela resolução da entrada.
 HLS e DASH usam segmentos de seis segundos por padrão.
+
+O diagrama de ABR abaixo representa o fixture HLS multi-rendição e os pacotes
+gerados pelos scripts. O upload local do MVP ainda publica uma media playlist de
+uma representação; suas variantes padrão são metadados de estudo, não uma
+master playlist própria.
 
 ### Playback ABR e QoE
 
@@ -387,8 +550,9 @@ exibir buffer, startup e trocas na tela de observabilidade.
 ## Screenshots e ilustrações
 
 Não há screenshots binários versionados neste MVP. As telas são reproduzíveis
-com o quickstart acima e as ilustrações Mermaid desta seção representam o
-funcionamento observado na interface.
+com o Quick Start. As três ilustrações SVG no início deste README representam
+conceitos diferentes: pipeline, entrega progressiva versus segmentada e ABR.
+Os diagramas Mermaid abaixo representam a arquitetura e o fluxo de eventos.
 
 **Biblioteca.** A página inicial mostra o estado da API, a quantidade de assets,
 cards de vídeos, filtros por `READY`/`PROCESSING`/`FAILED`, busca, ordenação e o
@@ -401,9 +565,10 @@ observabilidade. MP4 usa reprodução progressiva; HLS usa `hls.js` e mostra o
 nível ABR atual quando o manifesto oferece múltiplas variantes.
 
 **Visão operacional.** Os diagramas “Arquitetura do MVP”, “Upload e
-transcoding” e “Playback ABR e QoE” acima são as ilustrações principais: o
-primeiro mostra limites de componentes, o segundo mostra a transição para
-`READY` e o terceiro mostra a relação entre decisões ABR, segmentos e métricas.
+transcoding” e “Playback ABR e QoE” mostram limites de componentes, a transição
+para `READY` e a relação entre decisões ABR, segmentos e métricas. Os arquivos
+SVG podem ser reutilizados em uma apresentação sem depender do GitHub renderizar
+Mermaid.
 
 ## Validação
 

@@ -3,7 +3,10 @@
 ## Contrato de medição
 
 - `startup_time`: primeiro frame menos intenção de play.
-- `rebuffer_ratio`: segundos em buffer dividido por segundos reproduzidos.
+- `rebuffer_ratio`: tempo parado por falta de dados dividido pelo tempo
+  efetivamente reproduzido. O player atual envia `rebuffer_start`, mas ainda não
+  calcula esse intervalo nem envia `rebuffer_end`; trate a fórmula como contrato
+  experimental, não como métrica pronta da aplicação.
 - `average_bitrate`: bytes de mídia consumidos dividido pelo tempo de mídia.
 - `quality_switches`: contagem de mudanças de representação.
 - `error_rate`: sessões com erro dividido por sessões iniciadas.

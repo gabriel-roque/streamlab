@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Diferença entre MP4 progressivo e HLS segmentado</title>
+  <desc id="desc">Comparação lado a lado: MP4 é um arquivo único baixado progressivamente; HLS usa manifesto e segmentos independentes, permitindo troca de variante.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07090f"/>
+      <stop offset="1" stop-color="#0d111a"/>
+    </linearGradient>
+    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5ed9d0"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff6e75"/>
+    </marker>
+    <style>
+      .title { fill: #eef1f7; font: 700 30px Arial, Helvetica, sans-serif; letter-spacing: -0.8px; }
+      .subtitle { fill: #7f8a9d; font: 15px Arial, Helvetica, sans-serif; }
+      .eyebrow { fill: #b9f227; font: 600 11px 'Courier New', monospace; letter-spacing: 2px; }
+      .panel { fill: #0d111a; stroke: #242c39; stroke-width: 1.5; }
+      .panel-title { fill: #eef1f7; font: 700 22px Arial, Helvetica, sans-serif; }
+      .panel-copy { fill: #aeb7c5; font: 13px Arial, Helvetica, sans-serif; }
+      .label { fill: #7f8a9d; font: 11px 'Courier New', monospace; letter-spacing: .8px; }
+      .code { fill: #5ed9d0; font: 12px 'Courier New', monospace; }
+      .foot { fill: #7f8a9d; font: 12px Arial, Helvetica, sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <path d="M 40 116 H 1240" stroke="#242c39"/>
+  <text x="40" y="48" class="eyebrow">STREAMLAB / PLAYBACK</text>
+  <text x="40" y="86" class="title">Progressive MP4 vs HLS segmentado</text>
+  <text x="945" y="79" class="subtitle">duas formas de chegar ao player</text>
+
+  <g transform="translate(40 160)">
+    <rect class="panel" width="575" height="420" rx="6"/>
+    <rect x="0" y="0" width="575" height="7" rx="3" fill="#5ed9d0"/>
+    <text x="30" y="58" class="panel-title">MP4 progressivo</text>
+    <text x="30" y="82" class="panel-copy">um arquivo único; o player baixa por partes</text>
+
+    <rect x="30" y="118" width="515" height="72" rx="4" fill="#121823" stroke="#384557"/>
+    <path d="M 55 143 h 34 l 10 10 v 24 h -44 z" fill="none" stroke="#5ed9d0" stroke-width="2"/>
+    <path d="M 89 143 v 11 h 10" fill="none" stroke="#5ed9d0" stroke-width="2"/>
+    <text x="120" y="151" class="code">filme.mp4</text>
+    <text x="120" y="174" class="label">1 arquivo / HTTP Range</text>
+
+    <path d="M 116 222 V 258" stroke="#5ed9d0" stroke-width="2" marker-end="url(#arrow-cyan)"/>
+    <text x="135" y="244" class="label">download contínuo</text>
+
+    <rect x="30" y="274" width="515" height="35" rx="3" fill="#121823" stroke="#384557"/>
+    <rect x="31" y="275" width="283" height="33" rx="2" fill="#5ed9d0" opacity=".9"/>
+    <path d="M 314 274 V 309" stroke="#b9f227" stroke-width="2"/>
+    <text x="42" y="297" fill="#07090f" font="600 11px 'Courier New', monospace">dados baixados</text>
+    <text x="327" y="297" class="label">ainda baixando...</text>
+
+    <circle cx="74" cy="363" r="22" fill="#07090f" stroke="#b9f227" stroke-width="2"/>
+    <path d="M 69 353 l 15 10 -15 10 z" fill="#b9f227"/>
+    <path d="M 105 363 H 183" stroke="#b9f227" stroke-width="2" marker-end="url(#arrow-cyan)"/>
+    <text x="201" y="359" class="panel-copy">começa antes do arquivo completo</text>
+    <text x="201" y="380" class="label">simples de servir</text>
+  </g>
+
+  <g transform="translate(665 160)">
+    <rect class="panel" width="575" height="420" rx="6"/>
+    <rect x="0" y="0" width="575" height="7" rx="3" fill="#ff6e75"/>
+    <text x="30" y="58" class="panel-title">HLS segmentado</text>
+    <text x="30" y="82" class="panel-copy">manifesto + segmentos; o player escolhe o próximo</text>
+
+    <rect x="30" y="118" width="515" height="54" rx="4" fill="#121823" stroke="#384557"/>
+    <path d="M 54 137 h 31 M 54 149 h 43 M 54 161 h 25" stroke="#ff6e75" stroke-width="2" stroke-linecap="round"/>
+    <text x="120" y="143" class="code">master.m3u8</text>
+    <text x="120" y="163" class="label">manifesto com variantes</text>
+
+    <path d="M 116 196 V 228" stroke="#ff6e75" stroke-width="2" marker-end="url(#arrow-red)"/>
+    <text x="135" y="216" class="label">baixa um por vez</text>
+
+    <g transform="translate(30 244)">
+      <rect width="112" height="58" rx="3" fill="#5ed9d0" opacity=".9"/>
+      <text x="56" y="25" text-anchor="middle" fill="#07090f" font="700 12px 'Courier New', monospace">seg-001.ts</text>
+      <text x="56" y="44" text-anchor="middle" fill="#07090f" font="11px 'Courier New', monospace">1080p</text>
+      <rect x="124" width="112" height="58" rx="3" fill="#5ed9d0" opacity=".72"/>
+      <text x="180" y="25" text-anchor="middle" fill="#07090f" font="700 12px 'Courier New', monospace">seg-002.ts</text>
+      <text x="180" y="44" text-anchor="middle" fill="#07090f" font="11px 'Courier New', monospace">1080p</text>
+      <rect x="248" width="112" height="58" rx="3" fill="#ff6e75" opacity=".88"/>
+      <text x="304" y="25" text-anchor="middle" fill="#07090f" font="700 12px 'Courier New', monospace">seg-003.ts</text>
+      <text x="304" y="44" text-anchor="middle" fill="#07090f" font="11px 'Courier New', monospace">720p</text>
+      <rect x="372" width="112" height="58" rx="3" fill="#ff6e75" opacity=".66"/>
+      <text x="428" y="25" text-anchor="middle" fill="#07090f" font="700 12px 'Courier New', monospace">seg-004.ts</text>
+      <text x="428" y="44" text-anchor="middle" fill="#07090f" font="11px 'Courier New', monospace">720p</text>
+    </g>
+
+    <circle cx="74" cy="363" r="22" fill="#07090f" stroke="#b9f227" stroke-width="2"/>
+    <path d="M 69 353 l 15 10 -15 10 z" fill="#b9f227"/>
+    <path d="M 105 363 H 183" stroke="#b9f227" stroke-width="2" marker-end="url(#arrow-cyan)"/>
+    <text x="201" y="359" class="panel-copy">troca de qualidade sem parar</text>
+    <text x="201" y="380" class="label">ABR decide por segmento</text>
+  </g>
+
+  <rect x="40" y="614" width="1200" height="58" rx="4" fill="#121823" stroke="#242c39"/>
+  <circle cx="70" cy="643" r="5" fill="#5ed9d0"/>
+  <text x="86" y="648" class="foot">MP4: simples e direto</text>
+  <circle cx="380" cy="643" r="5" fill="#ff6e75"/>
+  <text x="396" y="648" class="foot">HLS: adaptável a rede e buffer</text>
+  <circle cx="768" cy="643" r="5" fill="#b9f227"/>
+  <text x="784" y="648" class="foot">ambos podem começar antes do fim</text>
+</svg>
