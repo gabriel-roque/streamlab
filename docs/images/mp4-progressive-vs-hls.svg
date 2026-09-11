@@ -29,14 +29,14 @@
   <rect width="1280" height="720" fill="url(#bg)"/>
   <path d="M 40 116 H 1240" stroke="#242c39"/>
   <text x="40" y="48" class="eyebrow">STREAMLAB / PLAYBACK</text>
-  <text x="40" y="86" class="title">Progressive MP4 vs HLS segmentado</text>
-  <text x="945" y="79" class="subtitle">two ways to reach the player</text>
+  <text x="40" y="86" class="title">Progressive MP4 vs HLS</text>
+  <text x="945" y="79" class="subtitle">two delivery models</text>
 
   <g transform="translate(40 160)">
     <rect class="panel" width="575" height="420" rx="6"/>
     <rect x="0" y="0" width="575" height="7" rx="3" fill="#5ed9d0"/>
     <text x="30" y="58" class="panel-title">Progressive MP4</text>
-    <text x="30" y="82" class="panel-copy">one file; the player downloads it in parts</text>
+    <text x="30" y="82" class="panel-copy">one file; downloaded in parts</text>
 
     <rect x="30" y="118" width="515" height="72" rx="4" fill="#121823" stroke="#384557"/>
     <path d="M 55 143 h 34 l 10 10 v 24 h -44 z" fill="none" stroke="#5ed9d0" stroke-width="2"/>
@@ -56,7 +56,7 @@
     <circle cx="74" cy="363" r="22" fill="#07090f" stroke="#b9f227" stroke-width="2"/>
     <path d="M 69 353 l 15 10 -15 10 z" fill="#b9f227"/>
     <path d="M 105 363 H 183" stroke="#b9f227" stroke-width="2" marker-end="url(#arrow-cyan)"/>
-    <text x="201" y="359" class="panel-copy">starts before the full file arrives</text>
+    <text x="201" y="359" class="panel-copy">starts before completion</text>
     <text x="201" y="380" class="label">simple to serve</text>
   </g>
 
@@ -64,7 +64,7 @@
     <rect class="panel" width="575" height="420" rx="6"/>
     <rect x="0" y="0" width="575" height="7" rx="3" fill="#ff6e75"/>
     <text x="30" y="58" class="panel-title">Segmented HLS</text>
-    <text x="30" y="82" class="panel-copy">manifest + segments; the player chooses the next one</text>
+    <text x="30" y="82" class="panel-copy">manifest + segments; player chooses next</text>
 
     <rect x="30" y="118" width="515" height="54" rx="4" fill="#121823" stroke="#384557"/>
     <path d="M 54 137 h 31 M 54 149 h 43 M 54 161 h 25" stroke="#ff6e75" stroke-width="2" stroke-linecap="round"/>

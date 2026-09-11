@@ -26,11 +26,11 @@
   <rect width="1280" height="760" fill="url(#bg)"/>
   <path d="M 40 116 H 1240" stroke="#242c39"/>
   <text x="40" y="48" class="eyebrow">STREAMLAB / ABR</text>
-  <text x="40" y="86" class="title">Quality follows the network</text>
-  <text x="925" y="79" class="subtitle">ABR protects the buffer before rebuffering</text>
+  <text x="40" y="86" class="title">Quality follows network</text>
+  <text x="925" y="79" class="subtitle">ABR protects the buffer</text>
 
   <rect x="40" y="150" width="1200" height="354" rx="6" class="panel"/>
-  <text x="66" y="186" class="eyebrow">PLAYER-SELECTED LEVEL</text>
+  <text x="66" y="186" class="eyebrow">SELECTED QUALITY</text>
 
   <g stroke="#242c39" stroke-width="1">
     <path d="M 172 230 H 1150"/>
@@ -89,10 +89,10 @@
 
     <rect x="930" y="28" width="238" height="119" rx="4" fill="#121823" stroke="#384557"/>
     <text x="952" y="55" class="eyebrow">REGRA CONSERVADORA</text>
-    <text x="952" y="82" class="copy">network drop + short buffer</text>
+    <text x="952" y="82" class="copy">network drop + low buffer</text>
     <path d="M 952 98 H 1028" stroke="#b9f227" stroke-width="2" marker-end="url(#arrow-cyan)"/>
-    <text x="1042" y="103" class="copy">steps down before stalling</text>
-    <text x="952" y="130" class="small">rises gradually during recovery</text>
+    <text x="1042" y="103" class="copy">steps down to avoid stalls</text>
+    <text x="952" y="130" class="small">gradual recovery</text>
   </g>
 
   <circle cx="68" cy="734" r="5" fill="#b9f227"/>
