@@ -118,7 +118,7 @@ func (p *Processor) tryFFmpeg(ctx context.Context, id string) bool {
 	}
 	output := p.Store.ArtifactPath(id, "ffmpeg.m3u8")
 	segment := p.Store.ArtifactPath(id, "segment-%03d.ts")
-	command := exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", p.Store.MediaPath(id), "-c:v", "libx264", "-c:a", "aac", "-f", "hls", "-hls_time", "6", "-hls_list_size", "0", "-hls_segment_filename", segment, output)
+	command := exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", p.Store.MediaPath(id), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-ac", "2", "-f", "hls", "-hls_time", "6", "-hls_list_size", "0", "-hls_segment_filename", segment, output)
 	return command.Run() == nil
 }
 

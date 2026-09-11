@@ -19,7 +19,7 @@ export function UploadModal({ onClose, onUpload, uploading, progress }: { onClos
         <button className={`drop-zone ${file ? "drop-zone-selected" : ""}`} onClick={() => inputRef.current?.click()} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); chooseFile(event.dataTransfer.files[0]); }}>
           <span className="upload-mark"><Icon name="cloud-upload" size={24} /></span>
           <strong>{file ? file.name : "Drop a source file here"}</strong>
-          <span>{file ? `${(file.size / 1024 / 1024).toFixed(1)} MB ready for ingest` : "MP4, MOV or WebM up to 5 GB"}</span>
+          <span>{file ? `${(file.size / 1024 / 1024).toFixed(1)} MB ready for ingest` : "MP4, MOV or WebM up to 2 GB"}</span>
           <input ref={inputRef} type="file" accept="video/mp4,video/quicktime,video/webm" hidden onChange={(event) => chooseFile(event.target.files?.[0])} />
         </button>
         <label className="field-label" htmlFor="video-title">Asset name</label>

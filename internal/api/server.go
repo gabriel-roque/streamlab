@@ -266,6 +266,10 @@ func (s *Server) videoRoute(w http.ResponseWriter, r *http.Request, id string, r
 			s.playback(w, id)
 			return
 		}
+		if len(rest) == 2 {
+			s.playbackAsset(w, id, rest[1])
+			return
+		}
 		if len(rest) == 3 {
 			s.artifact(w, id, rest[1], rest[2])
 			return
@@ -274,6 +278,18 @@ func (s *Server) videoRoute(w http.ResponseWriter, r *http.Request, id string, r
 		return
 	}
 	errorJSON(w, http.StatusNotFound, "video route not found")
+}
+
+func (s *Server) playbackAsset(w http.ResponseWriter, id, name string) {
+	if name == "hls" || name == "dash" {
+		s.manifest(w, id, name)
+		return
+	}
+	format := "dash"
+	if strings.HasSuffix(name, ".ts") || strings.HasSuffix(name, ".m3u8") {
+		format = "hls"
+	}
+	s.artifact(w, id, format, name)
 }
 
 func (s *Server) stream(w http.ResponseWriter, r *http.Request, id string) {

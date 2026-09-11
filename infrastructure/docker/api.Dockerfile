@@ -9,7 +9,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/streaml
 
 FROM alpine:3.20
 
-RUN apk add --no-cache ca-certificates wget \
+RUN apk add --no-cache ca-certificates wget ffmpeg \
     && addgroup -S streamlab \
     && adduser -S -G streamlab streamlab \
     && mkdir -p /var/lib/streamlab/media \

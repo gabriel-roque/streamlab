@@ -175,6 +175,11 @@ func TestCreateThenUploadAndPlaybackContracts(t *testing.T) {
 			t.Fatalf("%s manifest: code=%d content-type=%q body=%q", test.format, manifest.Code, manifest.Header().Get("Content-Type"), manifest.Body.String())
 		}
 	}
+	segment := httptest.NewRecorder()
+	server.Handler().ServeHTTP(segment, httptest.NewRequest(http.MethodGet, "/videos/"+created.ID+"/playback/segment-000.ts", nil))
+	if segment.Code != http.StatusOK || segment.Header().Get("Content-Type") != "video/mp2t" {
+		t.Fatalf("relative HLS segment: code=%d content-type=%q", segment.Code, segment.Header().Get("Content-Type"))
+	}
 }
 
 func TestHealthAliasesAndStorageEnvironment(t *testing.T) {
