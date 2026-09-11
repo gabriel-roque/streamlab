@@ -151,7 +151,3 @@ não são versionados neste repositório.
 - [Big Buck Bunny](https://studio.blender.org/films/big-buck-bunny/)
 - [Fonte oficial para download](https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4.zip)
 - [Fixture HLS Mux](https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8)
-
-## Repositório
-
-https://github.com/gabriel-roque/streamlab
