@@ -20,6 +20,7 @@
       .copy { fill: #aeb7c5; font: 13px Arial, Helvetica, sans-serif; }
       .small { fill: #7f8a9d; font: 11px Arial, Helvetica, sans-serif; }
       .mono { fill: #5ed9d0; font: 12px 'Courier New', monospace; }
+      .badge { font: 600 10px 'Courier New', monospace; }
     </style>
   </defs>
 
@@ -65,9 +66,9 @@
   <circle cx="1014" cy="315" r="7" fill="#07090f" stroke="#b9f227" stroke-width="3"/>
 
   <rect x="347" y="199" width="126" height="25" rx="12" fill="#121823" stroke="#ff6e75"/>
-  <text x="410" y="216" text-anchor="middle" fill="#ff6e75" font="600 10px 'Courier New', monospace">REDE CAI</text>
+  <text x="410" y="216" text-anchor="middle" fill="#ff6e75" class="badge">NETWORK DROPS</text>
   <rect x="905" y="423" width="126" height="25" rx="12" fill="#121823" stroke="#5ed9d0"/>
-  <text x="968" y="440" text-anchor="middle" fill="#5ed9d0" font="600 10px 'Courier New', monospace">REDE VOLTA</text>
+  <text x="968" y="440" text-anchor="middle" fill="#5ed9d0" class="badge">NETWORK RETURNS</text>
 
   <g transform="translate(40 536)">
     <rect width="1200" height="174" rx="6" class="panel"/>
@@ -88,11 +89,14 @@
     <text x="780" y="119" class="mono">12s → 8s → 3s → 7s</text>
 
     <rect x="930" y="28" width="238" height="119" rx="4" fill="#121823" stroke="#384557"/>
-    <text x="952" y="55" class="eyebrow">REGRA CONSERVADORA</text>
+    <text x="952" y="55" class="eyebrow">CONSERVATIVE RULE</text>
     <text x="952" y="82" class="copy">network drop + low buffer</text>
     <path d="M 952 98 H 1028" stroke="#b9f227" stroke-width="2" marker-end="url(#arrow-cyan)"/>
-    <text x="1042" y="103" class="copy">steps down to avoid stalls</text>
-    <text x="952" y="130" class="small">gradual recovery</text>
+    <text x="1042" y="103" class="copy">
+      <tspan x="1042" dy="0">step down</tspan>
+      <tspan x="1042" dy="16">to avoid stalls</tspan>
+    </text>
+    <text x="952" y="139" class="small">gradual recovery</text>
   </g>
 
   <circle cx="68" cy="734" r="5" fill="#b9f227"/>

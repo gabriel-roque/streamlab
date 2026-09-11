@@ -41,7 +41,7 @@
     <rect x="30" y="118" width="515" height="72" rx="4" fill="#121823" stroke="#384557"/>
     <path d="M 55 143 h 34 l 10 10 v 24 h -44 z" fill="none" stroke="#5ed9d0" stroke-width="2"/>
     <path d="M 89 143 v 11 h 10" fill="none" stroke="#5ed9d0" stroke-width="2"/>
-    <text x="120" y="151" class="code">filme.mp4</text>
+    <text x="120" y="151" class="code">movie.mp4</text>
     <text x="120" y="174" class="label">1 file / HTTP Range</text>
 
     <path d="M 116 222 V 258" stroke="#5ed9d0" stroke-width="2" marker-end="url(#arrow-cyan)"/>
@@ -72,7 +72,7 @@
     <text x="120" y="163" class="label">manifest with variants</text>
 
     <path d="M 116 196 V 228" stroke="#ff6e75" stroke-width="2" marker-end="url(#arrow-red)"/>
-    <text x="135" y="216" class="label">baixa um por vez</text>
+    <text x="135" y="216" class="label">one segment at a time</text>
 
     <g transform="translate(30 244)">
       <rect width="112" height="58" rx="3" fill="#5ed9d0" opacity=".9"/>

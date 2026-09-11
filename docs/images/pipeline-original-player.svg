@@ -17,7 +17,9 @@
       .card { fill: #0d111a; stroke: #242c39; stroke-width: 1.5; }
       .card-label { fill: #7f8a9d; font: 11px 'Courier New', monospace; letter-spacing: 1.2px; }
       .card-title { fill: #eef1f7; font: 700 17px Arial, Helvetica, sans-serif; }
+      .card-title-sm { fill: #eef1f7; font: 700 15px Arial, Helvetica, sans-serif; }
       .card-copy { fill: #aeb7c5; font: 13px Arial, Helvetica, sans-serif; }
+      .card-copy-sm { fill: #aeb7c5; font: 11px Arial, Helvetica, sans-serif; }
       .code { fill: #5ed9d0; font: 12px 'Courier New', monospace; }
       .number { fill: #07090f; font: 700 12px 'Courier New', monospace; }
       .foot { fill: #7f8a9d; font: 12px Arial, Helvetica, sans-serif; }
@@ -28,7 +30,7 @@
   <path d="M 40 116 H 1240" stroke="#242c39"/>
   <text x="40" y="48" class="eyebrow">STREAMLAB / PIPELINE</text>
   <text x="40" y="86" class="title">Source file to player</text>
-  <text x="900" y="79" class="subtitle">one path, two outputs</text>
+  <text x="1240" y="79" text-anchor="end" class="subtitle">one path, two outputs</text>
 
   <g transform="translate(40 208)">
     <rect class="card" width="180" height="250" rx="5"/>
@@ -39,7 +41,7 @@
     <rect x="20" y="133" width="140" height="67" rx="3" fill="#121823" stroke="#384557"/>
     <path d="M 43 153 h 31 l 10 10 v 23 h -41 z" fill="none" stroke="#5ed9d0" stroke-width="2"/>
     <path d="M 74 153 v 11 h 10" fill="none" stroke="#5ed9d0" stroke-width="2"/>
-    <text x="96" y="163" class="code">video.mp4</text>
+    <text x="92" y="163" class="code">video.mp4</text>
     <text x="96" y="182" class="foot">raw media</text>
     <text x="20" y="229" class="card-copy">Upload multipart</text>
   </g>
@@ -51,7 +53,10 @@
     <circle cx="25" cy="25" r="15" fill="#5ed9d0"/>
     <text x="25" y="29" text-anchor="middle" class="number">02</text>
     <text x="20" y="74" class="card-label">API GO</text>
-    <text x="20" y="107" class="card-title">Receives + records</text>
+    <text x="20" y="100" class="card-title-sm">
+      <tspan x="20">Receives file</tspan>
+      <tspan x="20" dy="19">Records request</tspan>
+    </text>
     <rect x="20" y="133" width="140" height="67" rx="3" fill="#121823" stroke="#384557"/>
     <path d="M 44 151 h 42 M 44 165 h 65 M 44 179 h 49" stroke="#5ed9d0" stroke-width="3" stroke-linecap="round"/>
     <circle cx="133" cy="164" r="11" fill="none" stroke="#b9f227" stroke-width="2"/>
@@ -111,9 +116,11 @@
     <circle cx="40" cy="48" r="22" fill="#07090f" stroke="#5ed9d0" stroke-width="2"/>
     <path d="M 35 38 l 16 10 -16 10 z" fill="#b9f227"/>
     <text x="40" y="107" text-anchor="middle" class="card-label">06</text>
-    <text x="40" y="139" text-anchor="middle" class="card-title" font-size="15">Player</text>
-    <text x="40" y="169" text-anchor="middle" class="card-copy">plays</text>
-    <text x="40" y="188" text-anchor="middle" class="card-copy">and measures</text>
+    <text x="40" y="139" text-anchor="middle" class="card-title-sm">Player</text>
+    <text x="40" y="169" text-anchor="middle" class="card-copy-sm">
+      <tspan x="40">plays</tspan>
+      <tspan x="40" dy="17">and tracks</tspan>
+    </text>
   </g>
 
   <rect x="40" y="528" width="1200" height="108" rx="5" fill="#0d111a" stroke="#242c39"/>
