@@ -1,5 +1,7 @@
 # StreamLab
 
+[![CI](https://github.com/gabriel-roque/streamlab/actions/workflows/ci.yml/badge.svg)](https://github.com/gabriel-roque/streamlab/actions/workflows/ci.yml)
+
 Video streaming lab for studying the complete path:
 
 ```text

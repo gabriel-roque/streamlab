@@ -16,10 +16,11 @@ for script in \
   scripts/generate-hls.sh \
   scripts/generate-dash.sh \
   scripts/validate-media.sh \
-  scripts/smoke-http.sh; do
+  scripts/smoke-http.sh \
+  scripts/quick-start.sh; do
   "$script" --help >/dev/null
 done
 
-test ! -e samples/raw/big-buck-bunny-1080p-normal.mp4
-test ! -e samples/generated/hls/master.m3u8
+git check-ignore --quiet samples/raw/big-buck-bunny-1080p-normal.mp4
+git check-ignore --quiet samples/generated/hls/master.m3u8
 printf 'script checks passed\n'
